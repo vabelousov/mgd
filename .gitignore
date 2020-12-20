@@ -1,0 +1,26 @@
+#  служебные файлы кроме __init__.py
+.DS_Store
+db.sqlite3
+mgd/.env
+tour/migrations/*.*
+tour/templates/depricated/*.*
+# locale/
+
+__*
+!__init__.py
+
+#  отдельные конкретно указанные папки или файлы
+.idea/
+
+#  файлы медиа
+*.xml
+*.png
+*.jpg
+*.gif
+*.tif
+*.rtf
+*.doc
+*.doco
+*.xls
+*.xlsx
+*.jpeg

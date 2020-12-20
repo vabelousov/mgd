@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-activity-][pk={{ object.pk }}]<br>
+{{ object.name }}<br>
+{{ object.description }}<br>
+[<a href="/activity/{{ object.slug }}/guides/">{{ object.name }} guides</a>]
+[<a href="/activity/{{ object.slug }}/tours/">{{ object.name }} tours</a>]
+[<a href="/activity/{{ object.slug }}/continents/">{{ object.name }} continents</a>]
+[<a href="/activity/{{ object.slug }}/countries/">{{ object.name }} countries</a>]
+[<a href="/activity/{{ object.slug }}/regions/">{{ object.name }} regions</a>]
+[<a href="/activity/{{ object.slug }}/places/">{{ object.name }} places</a>]
+<br>
+Created: {{ object.date_created }}<br>
+{% endblock %}

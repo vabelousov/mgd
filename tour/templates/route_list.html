@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-route list-]
+<br>
+{% for obj in objects %}
+[<a href="{{ obj.tour_object.get_absolute_url }}">{{ obj.tour_object }}</a>]-[<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]</br>
+{% empty %}
+[-no routes-]<br>
+{% endfor %}
+{% endblock %}

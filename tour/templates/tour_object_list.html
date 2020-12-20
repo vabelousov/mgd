@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-tour-object list-]
+<br>
+{% for obj in objects %}
+[<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]</br>
+{% empty %}
+[-no mountains-]<br>
+{% endfor %}
+{% endblock %}

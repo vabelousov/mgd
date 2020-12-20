@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block title %}<title>Mountain guide</title>{% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="description" content="В горы с Белоусовым">
+    <meta name="keywords" content="Горы Альпнизм Восхождение Монблан Альпы Гид Инструктор, Горная школа, Школа альпинизма">
+    <meta name="robots" content="none">
+    <meta name="Author" content="Belousov Vladimir">
+    <meta name="Copyright" content="Belousov Vladimir">
+    <meta name="Address" content="74310, 366 Avenue de la Gare, Les Houches Le Lac, France">
+    <!-- Добавление дополнительного статического CSS файла -->
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+[<a href="/admin/">admin</a>]
+[<a href="/">index</a>]
+[<a href="/tours/">tours</a>]
+[<a href="/activities/">activities</a>]
+[<a href="/continents/">continents</a>]
+[<a href="/countries/">countries</a>]
+[<a href="/regions/">regions</a>]
+[<a href="/places/">places</a>]
+[<a href="/tour-objects/">tour-objects</a>]
+[<a href="/routes/">routes</a>]
+[<a href="/tourings/">tourings</a>]
+[<a href="/guides/">our guides</a>]
+[<a href="/site_statistics/">site statistics</a>]
+<hr>
+{% block content %}
+{% endblock %}
+<hr>
+[<a href="/admin/">admin</a>]
+[<a href="/">index</a>]
+[<a href="/tours/">tours</a>]
+[<a href="/activities/">activities</a>]
+[<a href="/continents/">continents</a>]
+[<a href="/countries/">countries</a>]
+[<a href="/regions/">regions</a>]
+[<a href="/places/">places</a>]
+[<a href="/tour-objects/">tour-objects</a>]
+[<a href="/routes/">routes</a>]
+[<a href="/tourings/">tourings</a>]
+[<a href="/guides/">our guides</a>]
+[<a href="/site_statistics/">site statistics</a>]
+</body>
+</html>

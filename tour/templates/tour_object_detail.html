@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-tour-object-][pk={{ object.pk }}]<br>
+{{ object.name }}<br>
+alt. {{ object.altitude }} m<br>
+{{ object.description }}<br>
+{% for plc in object.place.all %}
+[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]-[<a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>]-[<a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>]-[<a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>]
+{% empty %}
+[no places]
+{% endfor %}
+<br>
+[<a href="/tour-object/{{ object.slug }}/routes/">Маршруты</a>]
+[<a href="/tour-object/{{ object.slug }}/places/">Места</a>]
+[<a href="/tour-object/{{ object.slug }}/tours/">Туры</a>]
+[<a href="/tour-object/{{ object.slug }}/guides/">Гиды</a>]
+<br>
+Created: {{ object.date_created }}<br>
+{% endblock %}

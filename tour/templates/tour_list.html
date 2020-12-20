@@ -1,0 +1,86 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-tour list-]
+  <form method="get">
+     <div class="row">
+      <div class="block">
+         {{ filter.form.activity.label_tag }}
+         <select name="activity" id="id_activity" multiple size="5">
+            {% for choice in filter.form.activity %}
+            {{ choice.tag }} {% comment %}{{ choice.choice_label }}{% endcomment %}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.continent.label_tag }}
+         <select name="continent" id="id_continent" multiple size="5">
+            {% for choice in filter.form.continent %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.country.label_tag }}
+         <select name="country" id="id_country" multiple size="5">
+            {% for choice in filter.form.country %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.region.label_tag }}
+         <select name="region" id="id_region" multiple size="5">
+            {% for choice in filter.form.region %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.place.label_tag }}
+         <select name="place" id="id_place" multiple size="5">
+            {% for choice in filter.form.place %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.tour_object.label_tag }}
+         <select name="tour_object" id="id_tour_object" multiple size="5">
+            {% for choice in filter.form.tour_object %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.route.label_tag }}
+         <select name="route" id="id_route" multiple size="5">
+            {% for choice in filter.form.route %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.touring.label_tag }}
+         <select name="touring" id="id_touring" multiple size="5">
+            {% for choice in filter.form.touring %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.guide.label_tag }}
+         <select name="guide" id="id_guide" multiple size="5">
+            {% for choice in filter.form.guide %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+   </div>
+    <button type="submit">Filter</button>
+  </form>
+  <ul>
+  {% for tour in filter.qs %}
+    <li>[<a href="{{ tour.get_absolute_url }}">{{ tour }}</a>]</li>
+  {% endfor %}
+  </ul>
+{% endblock %}

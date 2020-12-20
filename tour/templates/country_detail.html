@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-country-][pk={{ obect.pk }}]<br>
+{{ object.name }}<br>
+{{ object.description }}<br>
+[<a href="{{ object.continent.get_absolute_url }}">{{ object.continent }}</a>]<br>
+[<a href="/country/{{ object.slug }}/activities/">{{ object.name }} activities</a>]
+[<a href="/country/{{ object.slug }}/guides/">{{ object.name }} guides</a>]
+[<a href="/country/{{ object.slug }}/regions/">{{ object.name }} regions</a>]
+[<a href="/country/{{ object.slug }}/places/">{{ object.name }} places</a>]
+[<a href="/country/{{ object.slug }}/tour-objects/">{{ object.name }} tour-objects</a>]
+[<a href="/country/{{ object.slug }}/routes/">{{ object.name }} routes</a>]
+[<a href="/country/{{ object.slug }}/tours/">{{ object.name }} tours</a>]
+<br>
+Created: {{ object.date_created }}<br>
+{% endblock %}

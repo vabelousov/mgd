@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+{% block content %}
+[-country list-]
+<br>
+{% for obj in objects %}
+[<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]</br>
+{% empty %}
+[-no countries-]<br>
+{% endfor %}
+{% endblock %}

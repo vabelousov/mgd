@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-30 13:23+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: tour/models.py:8 tour/models.py:25 tour/models.py:42
+msgid "Disabled"
+msgstr "Disabled"
+
+#: tour/models.py:9 tour/models.py:26 tour/models.py:43
+msgid "Active"
+msgstr "Active"
+
+#: tour/models.py:19
+msgid "Activity"
+msgstr "Activity"
+
+#: tour/models.py:20
+msgid "Activities"
+msgstr "Activities"
+
+#: tour/models.py:36
+msgid "Place"
+msgstr "Place"
+
+#: tour/models.py:37
+msgid "Places"
+msgstr "Places"
+
+#: tour/models.py:54
+msgid "Mountain"
+msgstr "Mountain"
+
+#: tour/models.py:55
+msgid "Mountains"
+msgstr "Mountains"
