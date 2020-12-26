@@ -2,12 +2,43 @@
 {% block content %}
 [-tour list-]
   <form method="get">
-     <div class="row">
+      <div class="row">
+          <div class="block">{{ filter.form.search.label_tag }} {{ filter.form.search }}</div>
+          <div class="block">{{ filter.form.price__gt.label_tag }}{{ filter.form.price__gt }}<br>
+          {{ filter.form.price__lt.label_tag }} {{ filter.form.price__lt }}</div>
+          <div class="block">{{ filter.form.from_date.label_tag }} {{ filter.form.from_date }}<br>
+          {{ filter.form.through_date.label_tag }} {{ filter.form.through_date }}</div>
+      <div class="block">
+         {{ filter.form.difficulty_level.label_tag }}
+         <select name="difficulty_level" id="id_difficulty_level" multiple size="5">
+            {% for choice in filter.form.difficulty_level %}
+            {{ choice.tag }}{{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.physical_level.label_tag }}
+         <select name="physical_level" id="id_physical_level" multiple size="5">
+            {% for choice in filter.form.physical_level %}
+            {{ choice.tag }}{{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      <div class="block">
+         {{ filter.form.guide.label_tag }}
+         <select name="guide" id="id_guide" multiple size="5">
+            {% for choice in filter.form.guide %}
+            {{ choice.tag }} {{ choice.choice_label }}
+            {% endfor %}
+         </select>
+      </div>
+      </div>
+      <div class="row">
       <div class="block">
          {{ filter.form.activity.label_tag }}
          <select name="activity" id="id_activity" multiple size="5">
             {% for choice in filter.form.activity %}
-            {{ choice.tag }} {% comment %}{{ choice.choice_label }}{% endcomment %}
+            {{ choice.tag }}{{ choice.choice_label }}
             {% endfor %}
          </select>
       </div>
@@ -67,17 +98,10 @@
             {% endfor %}
          </select>
       </div>
-      <div class="block">
-         {{ filter.form.guide.label_tag }}
-         <select name="guide" id="id_guide" multiple size="5">
-            {% for choice in filter.form.guide %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
    </div>
     <button type="submit">Filter</button>
   </form>
+  <p><a href=".">Clear filters</a></p>
   <ul>
   {% for tour in filter.qs %}
     <li>[<a href="{{ tour.get_absolute_url }}">{{ tour }}</a>]</li>

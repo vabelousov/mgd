@@ -78,7 +78,6 @@ class GlobalListView(ListView):
         if self.kwargs['arg1'] == 'tourings':
             self.template_name = 'touring_list.html'
             objects = Touring.active.all()
-
         return objects
 
 
@@ -89,9 +88,6 @@ class ArgumentListView(ListView):
 
     def get_queryset(self):
         objects = Tour.active.all()
-        if self.kwargs['arg1'] == 'activities':
-            self.template_name = 'activity_list.html'
-            objects = Activity.active.all()
         if self.kwargs['arg3'] == 'activities':
             self.template_name = 'activity_list.html'
             tours = None
@@ -221,7 +217,7 @@ class ArgumentListView(ListView):
             self.template_name = 'no_filter_tour_list.html'
             if self.kwargs['arg1'] == 'activity':
                 objects = Tour.active.filter(activity__slug=self.kwargs['arg2']).all()
-            if self.kwargs['arg1'] == 'guides':
+            if self.kwargs['arg1'] == 'guide':
                 objects = Tour.active.filter(guide__slug=self.kwargs['arg2']).all()
             if self.kwargs['arg1'] == 'continent':
                 objects = Tour.active.filter(continent__slug=self.kwargs['arg2']).distinct()
