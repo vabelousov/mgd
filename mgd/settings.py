@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
+from django.utils.translation import gettext_lazy as _
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+# reading .env file
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,13 +31,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'z#^b5zjx6lmllb9nknbpgjfv_pg!jmsr$a4#4k#l6&3j84pe1f'
+SECRET_KEY = env('SECRET_KEY', default='foo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+SITE_ID = env('SITE_ID', default=1)
 
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = tuple(env.list('DJANGO_ALLOWED_HOSTS', default=[]))
 
 # Application definition
 
@@ -81,13 +92,17 @@ WSGI_APPLICATION = 'mgd.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
+DATABASES = {
+    'default': env.db(),  # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
+    'extra': env.db('SQLITE_URL', default='sqlite:///db.sqlite3')
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -126,3 +141,34 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# язык сайта по умолчанию, если не удалось определить язык другими способами
+# LANGUAGE_CODE = 'ru'
+# LANGUAGE_CODE = 'en-us'
+
+# список доступных языков
+LANGUAGES = (
+    ('ru', _('Russian')),
+    ('en', _('English')),
+    ('fr', _('French')),
+)
+
+# указываем, где лежат файлы перевода
+LOCALE_PATHS = (
+    'locale',
+)
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_TRANSLATION_REGISTRY = 'tour.translation'
+
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = True
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 600  # 10 minutes
+SESSION_SAVE_EVERY_REQUEST = True
+
+CSRF_COOKIE_SECURE = True
