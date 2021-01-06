@@ -1,16 +1,17 @@
 {% extends "base_generic.html" %}
+{% load i18n %}
 {% block content %}
-[-place-][pk={{ object.pk }}]<br>
+[-{% translate "place" %}-][pk={{ object.pk }}]<br>
 {{ object.name }}<br>
 {{ object.description }}<br>
 [<a href="{{ object.region.country.continent.get_absolute_url }}">{{ object.region.country.continent }}</a>]<br>
 [<a href="{{ object.region.country.get_absolute_url }}">{{ object.region.country }}</a>]<br>
 [<a href="{{ object.region.get_absolute_url }}">{{ object.region }}</a>]<br>
-[<a href="/place/{{ object.slug }}/activities/">{{ object.name }} activities</a>]
-[<a href="/place/{{ object.slug }}/guides/">{{ object.name }} guides</a>]
-[<a href="/place/{{ object.slug }}/tour-objects/">{{ object.name }} tour-objects</a>]
-[<a href="/place/{{ object.slug }}/routes/">{{ object.name }} routes</a>]
-[<a href="/place/{{ object.slug }}/tours/">{{ object.name }} tours</a>]
+[<a href="/place/{{ object.slug }}/activities/">{{ object.name }} {% translate "activities" %}</a>]
+[<a href="/place/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]
+[<a href="/place/{{ object.slug }}/tour-objects/">{{ object.name }} {% translate "tour-objects" %}</a>]
+[<a href="/place/{{ object.slug }}/routes/">{{ object.name }} {% translate "routes" %}</a>]
+[<a href="/place/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]
 <br>
-Created: {{ object.date_created }}
+{% translate "Created" %}: {{ object.date_created }}
 {% endblock %}

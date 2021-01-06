@@ -1,10 +1,11 @@
 {% extends "base_generic.html" %}
+{% load i18n %}
 {% block content %}
-[-tour-][pk={{ object.pk }}]<br>
+[-{% translate "tour" %}-][pk={{ object.pk }}]<br>
 {{ object.name }}<br>
 {% if object.start_date and object.end_date %}{{ object.start_date }}- {{ object.end_date }}
 {% else %}
-dates to be confirmed
+{% translate "dates to be confirmed" %}
 {% endif %}
 <br>
 {% for act in object.activity.all %}
@@ -45,44 +46,45 @@ dates to be confirmed
 [<a href="{{ gd.get_absolute_url }}">{{ gd }}</a>]
 {% if forloop.last %}<br>{% endif %}
 {% endfor %}
-{% if object.description %}Описание тура: {{ object.description }}<br>{% endif %}
+{% if object.description %}{% translate "Tour description" %}: {{ object.description }}<br>{% endif %}
 {% if object.day_set %}
 {% for day in object.day_set.all %}
-{% if forloop.first %}Программа по дням:<br>{% endif %}
+{% if forloop.first %}{% translate "Program by days" %}:<br>{% endif %}
 [{{ day }}]-[{{ day.interary }}]<br>
 {% endfor %}
 {% endif %}
-{% if object.difficulty_level %}
-Сложность: [{{ object.difficulty_level }}][{{ object.difficulty_level.description }}]<br>
-{% endif %}
-{% if object.physical_level %}
-Уровень подготовки: [{{ object.physical_level }}][{{ object.physical_level.description }}]<br>
-{% endif %}
-{% if object.danger_caution %}Предупреждение об опасностях:  {{ object.danger_caution }}<br>{% endif %}
-{% if object.typical_weather %}Погода: {{ object.typical_weather }}<br>{% endif %}
-{% if object.medical_insurnce %}Медицинская страховка: {{ object.medical_insurance }}<br>{% endif %}
-{% if object.responsability %}Ответственность гида и клиента: {{ object.responsability }}<br>{% endif %}
-{% if object.accomodation %}Проживание: {{ object.accomodation }}<br>{% endif %}
-{% if object.food %}Питание: {{ object.food }}<br>{% endif %}
-{% if object.add_info %}Дополнительная информация: {{ object.add_info }}<br>{% endif %}
+{% if object.danger_caution %}{% translate "Danger caution" %}:  {{ object.danger_caution }}<br>{% endif %}
+{% if object.typical_weather %}{% translate "Weather" %}: {{ object.typical_weather }}<br>{% endif %}
+{% if object.medical_insurance %}{% translate "Insurance" %}: {{ object.medical_insurance }}<br>{% endif %}
+{% if object.responsability %}{% translate "Responsability" %}: {{ object.responsability }}<br>{% endif %}
+{% if object.accomodation %}{% translate "Accomodation" %}: {{ object.accomodation }}<br>{% endif %}
+{% if object.food %}{% translate "Food" %}: {{ object.food }}<br>{% endif %}
+{% if object.add_info %}{% translate "Additional info" %}: {{ object.add_info }}<br>{% endif %}
 {% for eq in object.equipment_list.all %}
-{% if forloop.first %}Список снаряжения:{% endif %}
+{% if forloop.first %}{% translate "Equipment" %}:{% endif %}
 [{{ eq }}]
 {% if forloop.last %}<br>{% endif %}
 {% endfor %}
-{% for doc in object.doc_list.all %}
-{% if forloop.first %}Документы:{% endif %}
+{% for doc in object.travel_documents.all %}
+{% if forloop.first %}{% translate "Travel Documents" %}:{% endif %}
 [{{ doc }}]
 {% if forloop.last %}<br>{% endif %}
 {% endfor %}
-{% if object.time_hours %}Время: {{ object.time_hours }}<br>{% endif %}
-{% if object.min_altitude_m %}Минимальная высота: {{ object.min_altitude_m }}<br>{% endif %}
-{% if object.max_altitude_m %}Максимальная высота: {{ object.max_altitude_m }}<br>{% endif %}
-{% if object.altitude_gain_m %}Набор: {{ object.altitude_gain_m }}<br>{% endif %}
-{% if object.total_km %}Всего км: {{ object.total_km }}<br>{% endif %}
-{% if object.client_guide_ratio %}Клиентов на одного гида: {{ object.client_guide_ratio }}<br>{% endif %}
-{% if object.price %}Цена: {{ object.price }}{% if object.currency %}{{ object.currency }}{% endif %}<br>{% endif %}
-{% if object.price_include %}Включает: {{ object.price_include }}<br>{% endif %}
-{% if object.price_exclude %}Не включает: {{ object.price_exclude }}<br>{% endif %}
-Created: {{ object.date_created }}
+{% if object.physical_level %}{% translate "Physical Level" %}:  {{ object.physical_level }}<br>{% endif %}
+{% if object.difficulty_level %}{% translate "Difficulty Level" %}:  {{ object.difficulty_level }}<br>{% endif %}
+{% if object.time_hours %}{% translate "Time" %}: {{ object.time_hours }}<br>{% endif %}
+{% if object.min_altitude_m %}{% translate "Altitude min" %}: {{ object.min_altitude_m }}<br>{% endif %}
+{% if object.max_altitude_m %}{% translate "Altitude max" %}: {{ object.max_altitude_m }}<br>{% endif %}
+{% if object.altitude_gain_m %}{% translate "Altitude gain" %}: {{ object.altitude_gain_m }}<br>{% endif %}
+{% if object.total_km %}{% translate "Total distance" %}: {{ object.total_km }}<br>{% endif %}
+{% if object.client_guide_ratio %}{% translate "Guide-Client ratio" %}: {{ object.client_guide_ratio }}<br>{% endif %}
+{% translate "Availability" %}: {{ object.get_availability }}<br>
+{% if object.show_price %}
+{% if object.price %}{% translate "Price" %}: {{ object.price }}{% if object.currency %}{{ object.currency }}{% endif %}{% endif %}
+{% if object.get_availability > 0 and object.allow_booking %}<a href="/participate/{{ object.pk }}/">{% translate "Book" %}</a>{% endif %}
+<br>
+{% if object.price_include %}{% translate "Includes" %}: {{ object.price_include }}<br>{% endif %}
+{% if object.price_exclude %}{% translate "Excludes" %}: {{ object.price_exclude }}<br>{% endif %}
+{% endif %}
+{% translate "Created" %}: {{ object.date_created }}
 {% endblock %}

@@ -4,49 +4,29 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
+
 class ActiveManager(models.Manager):
     def get_queryset(self):
         return super(ActiveManager,
-		     self).get_queryset()\
-                          .filter(status='active')
+                     self).get_queryset().filter(status='active')
 
 
 class DisabledManager(models.Manager):
     def get_queryset(self):
         return super(DisabledManager,
-		     self).get_queryset()\
-                          .filter(status='disabled')
+                     self).get_queryset().filter(status='disabled')
 
 
-class Currency(models.Model):
-    code = models.CharField(max_length=4)
-    slug = models.SlugField(max_length=4)
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.code
-
-    def get_absolute_url(self):
-        return reverse('tour:currency-detail', kwargs={'slug': self.slug})
-
-    class Meta:
-        ordering = (
-            'code',
-        )
-        verbose_name = _('Currency')
-        verbose_name_plural = _('Currency')
-
-
-class Equipment(models.Model):
-    name = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250)
-    description = models.TextField(blank=True)
+class Vocabulary(models.Model):
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
 
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('tour:equipment-detail', kwargs={'slug': self.slug})
+
+class Equipment(Vocabulary):
+    vocabulary_type = 'equipment'
 
     class Meta:
         ordering = (
@@ -56,61 +36,44 @@ class Equipment(models.Model):
         verbose_name_plural = _('Equipment')
 
 
-class TravelDocument(models.Model):
-    name = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('tour:travel-document-detail', kwargs={'slug': self.slug})
+class TravelDocument(Vocabulary):
+    vocabulary_type = 'travel_document'
 
     class Meta:
-        ordering = (
-            'name',
-        )
-        verbose_name = _('Travel Document')
-        verbose_name_plural = _('Travel Documents')
+        verbose_name = _('Document')
+        verbose_name_plural = _('Documents')
 
 
-class PhysicalLevel(models.Model):
-    name = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('tour:physical-level-detail', kwargs={'slug': self.slug})
+class PhysicalLevel(Vocabulary):
+    vocabulary_type = 'physical_level'
 
     class Meta:
-        ordering = (
-            'name',
-        )
         verbose_name = _('Physical Level')
         verbose_name_plural = _('Physical Levels')
 
 
-class DifficultyLevel(models.Model):
-    name = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250)
-    description = models.TextField(blank=True)
+class DifficultyLevel(Vocabulary):
+    vocabulary_type = 'difficulty_level'
+
+    class Meta:
+        verbose_name = _('Difficulty Level')
+        verbose_name_plural = _('Difficulty Levels')
+
+
+class Currency(models.Model):
+    code = models.CharField(max_length=4, verbose_name=_('Code'))
+    slug = models.SlugField(max_length=4)
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
 
     def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('tour:difficulty-level-detail', kwargs={'slug': self.slug})
+        return self.code
 
     class Meta:
         ordering = (
-            'name',
+            'code',
         )
-        verbose_name = _('Difficulty Level')
-        verbose_name_plural = _('Difficulty Levels')
+        verbose_name = _('Currency')
+        verbose_name_plural = _('Currency')
 
 
 class Activity(models.Model):
@@ -118,7 +81,7 @@ class Activity(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -126,14 +89,14 @@ class Activity(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
     active = ActiveManager()
     disabled = DisabledManager()
 
-    def __str__(self): 
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -152,7 +115,7 @@ class Continent(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -160,7 +123,7 @@ class Continent(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -186,16 +149,16 @@ class Country(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
-    continent = models.ForeignKey(Continent, on_delete=models.DO_NOTHING)
+    continent = models.ForeignKey(Continent, on_delete=models.SET_NULL, null=True, verbose_name=_('Continent'))
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -222,16 +185,16 @@ class Region(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
-    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, default=1)
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, verbose_name=_('Country'))
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -257,16 +220,16 @@ class Place(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING)
+    region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, verbose_name=_('Region'))
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -299,7 +262,7 @@ class TourObject(models.Model):
         ('icefall', _('Icefall')),
         ('slope', _('Slope')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -310,15 +273,17 @@ class TourObject(models.Model):
     object_type = models.CharField(
         max_length=10,
         choices=OBJECT_TYPE_CHOICES,
-        default='mountain'
+        default='mountain',
+        verbose_name=_('Object type')
     )
     altitude = models.DecimalField(
         max_digits=5,
         decimal_places=0,
-        default=0
+        default=0,
+        verbose_name=_('Altitude')
     )
-    description = models.TextField(blank=True)
-    place = models.ManyToManyField(Place)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    place = models.ManyToManyField(Place, verbose_name=_('Place'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -344,7 +309,7 @@ class Route(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -352,9 +317,14 @@ class Route(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    tour_object = models.ForeignKey(TourObject, on_delete=models.DO_NOTHING, blank=True, null=True)
-    place = models.ManyToManyField(Place)
-    description = models.TextField(blank=True)
+    tour_object = models.ForeignKey(
+        TourObject,
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        verbose_name=_('Tour Object')
+    )
+    place = models.ManyToManyField(Place, verbose_name=_('Place'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -380,7 +350,7 @@ class Touring(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -388,8 +358,8 @@ class Touring(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    place = models.ManyToManyField(Place)
-    description = models.TextField(blank=True)
+    place = models.ManyToManyField(Place, verbose_name=_('Place'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -407,7 +377,7 @@ class Touring(models.Model):
             'name',
         )
         verbose_name = _('Touring')
-        verbose_name_plural = _('Touring')
+        verbose_name_plural = _('Tourings')
 
 
 class GuideProfile(models.Model):
@@ -423,19 +393,20 @@ class GuideProfile(models.Model):
         ('ifmga-aspirant', _('IFMGA aspirant')),
         ('ifmga-guide', _('IFMGA/UIAGM guide')),
     )
-    name = models.CharField(max_length=250)
-    country = models.ForeignKey(Country,on_delete=models.DO_NOTHING, blank=True, null=True)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_('Country'))
     birth_date = models.DateField(
         null=True,
         blank=True,
-        help_text=_('Birthday'),
+        help_text=_('Birth date'),
         verbose_name=_('Birth date')
     )
-    about_me = models.TextField(blank=True)
+    about_me = models.TextField(blank=True, verbose_name=_('About me'))
     qualification = models.CharField(
         max_length=20,
         choices=QUALIFICATION_CHOICES,
-        default='unqualified'
+        default='unqualified',
+        verbose_name=_('Qualification')
     )
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
@@ -460,27 +431,45 @@ class GuideProfile(models.Model):
         ordering = (
             '-date_created',
         )
-        verbose_name = _('GuideProfile')
-        verbose_name_plural = _('GuideProfiles')
+        verbose_name = _('Guide Profile')
+        verbose_name_plural = _('Guide Profiles')
 
 
 class Day(models.Model):
-   name = models.CharField(max_length=250)
-   interary = models.TextField(blank=True)
-   tour = models.ForeignKey('Tour',on_delete=models.CASCADE, default=1)
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
+    interary = models.TextField(blank=True, verbose_name=_('Interary'))
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
 
-   def __str__(self):
-       return self.name
+    def __str__(self):
+        return self.name
 
-   def get_absolute_url(self):
-       return reverse('tour:day-detail', kwargs={'slug': self.slug})
+    def get_absolute_url(self):
+        return reverse('tour:day-detail', kwargs={'slug': self.name})
 
-   class Meta:
-       ordering = (
-           'name',
-       )
-       verbose_name = _('Day')
-       verbose_name_plural = _('Days')
+    class Meta:
+        ordering = (
+            'name',
+        )
+        verbose_name = _('Day')
+        verbose_name_plural = _('Days')
+
+
+class Participant(models.Model):
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('tour:participant-detail', kwargs={'slug': self.name})
+
+    class Meta:
+        ordering = (
+            'name',
+        )
+        verbose_name = _('Participant')
+        verbose_name_plural = _('Perticipants')
 
 
 class Tour(models.Model):
@@ -488,15 +477,15 @@ class Tour(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    activity = models.ManyToManyField(Activity)
-    tour_object = models.ManyToManyField(TourObject, blank=True)
-    route = models.ManyToManyField(Route, blank=True)
-    touring = models.ForeignKey(Touring, on_delete=models.DO_NOTHING, null=True, blank=True)
-    continent = models.ManyToManyField(Continent, blank=True)
-    country = models.ManyToManyField(Country, blank=True)
-    region= models.ManyToManyField(Region, blank=True)
-    place = models.ManyToManyField(Place)
-    name = models.CharField(max_length=250)
+    activity = models.ManyToManyField(Activity, verbose_name=_('Activity'))
+    tour_object = models.ManyToManyField(TourObject, blank=True, verbose_name=_('Tour Object'))
+    route = models.ManyToManyField(Route, blank=True, verbose_name=_('Route'))
+    touring = models.ForeignKey(Touring, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Touring'))
+    continent = models.ManyToManyField(Continent, blank=True, verbose_name=_('Continent'))
+    country = models.ManyToManyField(Country, blank=True, verbose_name=_('Country'))
+    region = models.ManyToManyField(Region, blank=True, verbose_name=_('Region'))
+    place = models.ManyToManyField(Place, verbose_name=_('Place'))
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -504,15 +493,15 @@ class Tour(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True)
-    danger_caution = models.TextField(blank=True)
-    typical_weather = models.TextField(blank=True)
-    medical_insurance = models.TextField(blank=True)
-    responsability = models.TextField(blank=True)
-    accomodation = models.TextField(blank=True)
-    food = models.TextField(blank=True)
-    add_info = models.TextField(blank=True)
-    guide = models.ManyToManyField(GuideProfile, blank=True)
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    danger_caution = models.TextField(blank=True, verbose_name=_('Danger caution'))
+    typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))
+    medical_insurance = models.TextField(blank=True, verbose_name=_('Insurance'))
+    responsability = models.TextField(blank=True, verbose_name=_('Resposability'))
+    accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))
+    food = models.TextField(blank=True, verbose_name=_('Food'))
+    add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))
+    guide = models.ManyToManyField(GuideProfile, blank=True, verbose_name=_('Guide Profile'))
     start_date = models.DateField(
         null=True,
         blank=True,
@@ -525,20 +514,36 @@ class Tour(models.Model):
         help_text=_('Date through'),
         verbose_name=_('Date through')
     )
-    time_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    min_altitude_m = models.IntegerField(default=0)
-    max_altitude_m = models.IntegerField(default=0)
-    altitude_gain_m = models.IntegerField(default=0)
-    total_km = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    equipment_list = models.ManyToManyField(Equipment, blank=True)
-    doc_list = models.ManyToManyField(TravelDocument, blank=True)
-    difficulty_level = models.ForeignKey(DifficultyLevel, on_delete=models.DO_NOTHING, null=True, blank=True)
-    physical_level = models.ForeignKey(PhysicalLevel, on_delete=models.DO_NOTHING, null=True, blank=True)
-    client_guide_ratio = models.IntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    currency = models.ForeignKey(Currency, on_delete=models.DO_NOTHING, null=True, blank=True)
-    price_include = models.TextField(blank=True)
-    price_exclude = models.TextField(blank=True)
+    time_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name=_('Time'))
+    min_altitude_m = models.IntegerField(default=0, verbose_name=_('Altitude min'))
+    max_altitude_m = models.IntegerField(default=0, verbose_name=_('Altitude max'))
+    altitude_gain_m = models.IntegerField(default=0, verbose_name=_('Altitude gain'))
+    total_km = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Total distance'))
+    equipment_list = models.ManyToManyField(Equipment, blank=True, verbose_name=_('Equipment'))
+    travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
+    difficulty_level = models.ForeignKey(
+        DifficultyLevel,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Difficulty Level')
+    )
+    physical_level = models.ForeignKey(
+        PhysicalLevel,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,verbose_name=_('Physical Level')
+    )
+    client_guide_ratio = models.IntegerField(default=1, verbose_name=_('Guide-Client ratio'))
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Price'))
+    show_price = models.BooleanField(verbose_name=_('Show price'), default=True)
+    allow_booking = models.BooleanField(verbose_name=_('Allow booking'), default=True)
+    currency = models.ForeignKey(
+        Currency,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Currency')
+    )
+    price_include = models.TextField(blank=True, verbose_name=_('Includes'))
+    price_exclude = models.TextField(blank=True, verbose_name=_('Excludes'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -550,6 +555,13 @@ class Tour(models.Model):
 
     def get_absolute_url(self):
         return reverse('tour:tour-detail', kwargs={'slug': self.slug})
+
+    def get_availability(self):
+        guide_cnt = self.guide.count()
+        return guide_cnt*self.client_guide_ratio-Participant.objects.filter(tour__pk=self.pk).count()
+
+    def get_days_count(self):
+        return Day.objects.filter(tour__pk=self.pk).count()
 
     class Meta:
         ordering = (

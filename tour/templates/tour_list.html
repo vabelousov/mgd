@@ -1,107 +1,121 @@
 {% extends "base_generic.html" %}
+{% load i18n %}
 {% block content %}
-[-tour list-]
-  <form method="get">
+[-{% translate "tour list" %}-]
+  <form method="get" action="." id="id-filter-form">
       <div class="row">
+          <div class="block">
+             {{ filter.form.o.label_tag }}
+             <select name="o" id="id_o">
+                {% for choice in filter.form.o %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
           <div class="block">{{ filter.form.search.label_tag }} {{ filter.form.search }}</div>
           <div class="block">{{ filter.form.price__gt.label_tag }}{{ filter.form.price__gt }}<br>
           {{ filter.form.price__lt.label_tag }} {{ filter.form.price__lt }}</div>
-          <div class="block">{{ filter.form.from_date.label_tag }} {{ filter.form.from_date }}<br>
-          {{ filter.form.through_date.label_tag }} {{ filter.form.through_date }}</div>
-      <div class="block">
-         {{ filter.form.difficulty_level.label_tag }}
-         <select name="difficulty_level" id="id_difficulty_level" multiple size="5">
-            {% for choice in filter.form.difficulty_level %}
-            {{ choice.tag }}{{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.physical_level.label_tag }}
-         <select name="physical_level" id="id_physical_level" multiple size="5">
-            {% for choice in filter.form.physical_level %}
-            {{ choice.tag }}{{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.guide.label_tag }}
-         <select name="guide" id="id_guide" multiple size="5">
-            {% for choice in filter.form.guide %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
+          <div class="block">{{ filter.form.from_date.label_tag }}<br>{{ filter.form.from_date }}<br>
+          {{ filter.form.through_date.label_tag }}<br>{{ filter.form.through_date }}</div>
+          <div class="block">
+             {{ filter.form.difficulty_level.label_tag }}
+             <select name="difficulty_level" id="id_difficulty_level" multiple size="5">
+                {% for choice in filter.form.difficulty_level %}
+                {{ choice.tag }}{{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.physical_level.label_tag }}
+             <select name="physical_level" id="id_physical_level" multiple size="5">
+                {% for choice in filter.form.physical_level %}
+                {{ choice.tag }}{{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.guide.label_tag }}
+             <select name="guide" id="id_guide" multiple size="5">
+                {% for choice in filter.form.guide %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
       </div>
       <div class="row">
-      <div class="block">
-         {{ filter.form.activity.label_tag }}
-         <select name="activity" id="id_activity" multiple size="5">
-            {% for choice in filter.form.activity %}
-            {{ choice.tag }}{{ choice.choice_label }}
-            {% endfor %}
-         </select>
+          <div class="block">
+             {{ filter.form.activity.label_tag }}
+             <select name="activity" id="id_activity" multiple size="5">
+                {% for choice in filter.form.activity %}
+                {{ choice.tag }}{{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.continent.label_tag }}
+             <select name="continent" id="id_continent" multiple size="5">
+                {% for choice in filter.form.continent %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.country.label_tag }}
+             <select name="country" id="id_country" multiple size="5">
+                {% for choice in filter.form.country %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.region.label_tag }}
+             <select name="region" id="id_region" multiple size="5">
+                {% for choice in filter.form.region %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.place.label_tag }}
+             <select name="place" id="id_place" multiple size="5">
+                {% for choice in filter.form.place %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.tour_object.label_tag }}
+             <select name="tour_object" id="id_tour_object" multiple size="5">
+                {% for choice in filter.form.tour_object %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.route.label_tag }}
+             <select name="route" id="id_route" multiple size="5">
+                {% for choice in filter.form.route %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
+          <div class="block">
+             {{ filter.form.touring.label_tag }}
+             <select name="touring" id="id_touring" multiple size="5">
+                {% for choice in filter.form.touring %}
+                {{ choice.tag }} {{ choice.choice_label }}
+                {% endfor %}
+             </select>
+          </div>
       </div>
-      <div class="block">
-         {{ filter.form.continent.label_tag }}
-         <select name="continent" id="id_continent" multiple size="5">
-            {% for choice in filter.form.continent %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.country.label_tag }}
-         <select name="country" id="id_country" multiple size="5">
-            {% for choice in filter.form.country %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.region.label_tag }}
-         <select name="region" id="id_region" multiple size="5">
-            {% for choice in filter.form.region %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.place.label_tag }}
-         <select name="place" id="id_place" multiple size="5">
-            {% for choice in filter.form.place %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.tour_object.label_tag }}
-         <select name="tour_object" id="id_tour_object" multiple size="5">
-            {% for choice in filter.form.tour_object %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.route.label_tag }}
-         <select name="route" id="id_route" multiple size="5">
-            {% for choice in filter.form.route %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-      <div class="block">
-         {{ filter.form.touring.label_tag }}
-         <select name="touring" id="id_touring" multiple size="5">
-            {% for choice in filter.form.touring %}
-            {{ choice.tag }} {{ choice.choice_label }}
-            {% endfor %}
-         </select>
-      </div>
-   </div>
-    <button type="submit">Filter</button>
+      <button type="submit" value="Submit">{% translate "Filter" %}</button>
+      <a href=".">{% translate "Clear filters" %}</a>
   </form>
-  <p><a href=".">Clear filters</a></p>
+    <p>
+        sort by:
+        <a href="#" onclick="SortBy('price')">[Price (asc)]</a>
+        <a href="#" onclick="SortBy('-price')">[Price (dsc)]</a>
+    </p>
   <ul>
   {% for tour in filter.qs %}
     <li>[<a href="{{ tour.get_absolute_url }}">{{ tour }}</a>]</li>

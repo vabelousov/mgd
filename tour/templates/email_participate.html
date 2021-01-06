@@ -1,0 +1,12 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% block content %}
+[-{% translate "participate request" %}-]
+<p>Participate Form</p>
+Tour: {{ tour }}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Participate</button>
+</form>
+{% endblock %}

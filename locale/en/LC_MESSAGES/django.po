@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-30 13:23+0000\n"
+"POT-Creation-Date: 2020-12-27 17:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,34 +18,218 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: tour/models.py:8 tour/models.py:25 tour/models.py:42
+#: mgd/settings.py:153
+msgid "Russian"
+msgstr "Russian"
+
+#: mgd/settings.py:154
+msgid "English"
+msgstr "English"
+
+#: tour/filters.py:11
+msgid "Search"
+msgstr "Search"
+
+#: tour/filters.py:46
+msgid "Price min"
+msgstr "Price min"
+
+#: tour/filters.py:47
+msgid "Price max"
+msgstr "Price max"
+
+#: tour/filters.py:51 tour/models.py:520 tour/models.py:521
+msgid "Date from"
+msgstr "Date from"
+
+#: tour/filters.py:59 tour/models.py:526 tour/models.py:527
+msgid "Date through"
+msgstr "Date through"
+
+#: tour/models.py:37 tour/models.py:38
+msgid "Currency"
+msgstr "Currency"
+
+#: tour/models.py:56 tour/models.py:57
+msgid "Equipment"
+msgstr "Equipment"
+
+#: tour/models.py:75
+msgid "Travel Document"
+msgstr "Travel Document"
+
+#: tour/models.py:76
+msgid "Travel Documents"
+msgstr "Travel Documents"
+
+#: tour/models.py:94
+msgid "Physical Level"
+msgstr "Physical Level"
+
+#: tour/models.py:95
+msgid "Physical Levels"
+msgstr "Physical Levels"
+
+#: tour/models.py:113
+msgid "Difficulty Level"
+msgstr "Difficulty Level"
+
+#: tour/models.py:114
+msgid "Difficulty Levels"
+msgstr "Difficulty Levels"
+
+#: tour/models.py:119 tour/models.py:153 tour/models.py:187 tour/models.py:223
+#: tour/models.py:258 tour/models.py:293 tour/models.py:345 tour/models.py:381
+#: tour/models.py:416 tour/models.py:489
 msgid "Disabled"
 msgstr "Disabled"
 
-#: tour/models.py:9 tour/models.py:26 tour/models.py:43
+#: tour/models.py:120 tour/models.py:154 tour/models.py:188 tour/models.py:224
+#: tour/models.py:259 tour/models.py:294 tour/models.py:346 tour/models.py:382
+#: tour/models.py:417 tour/models.py:490
 msgid "Active"
 msgstr "Active"
 
-#: tour/models.py:19
+#: tour/models.py:147
 msgid "Activity"
 msgstr "Activity"
 
-#: tour/models.py:20
+#: tour/models.py:148
 msgid "Activities"
 msgstr "Activities"
 
-#: tour/models.py:36
+#: tour/models.py:181
+msgid "Continent"
+msgstr "Continent"
+
+#: tour/models.py:182
+msgid "Continents"
+msgstr "Continents"
+
+#: tour/models.py:217
+msgid "Country"
+msgstr "Country"
+
+#: tour/models.py:218
+msgid "Countries"
+msgstr "Countries"
+
+#: tour/models.py:252
+msgid "Region"
+msgstr "Region"
+
+#: tour/models.py:253
+msgid "Regions"
+msgstr "Regions"
+
+#: tour/models.py:287
 msgid "Place"
 msgstr "Place"
 
-#: tour/models.py:37
+#: tour/models.py:288
 msgid "Places"
 msgstr "Places"
 
-#: tour/models.py:54
+#: tour/models.py:297
 msgid "Mountain"
 msgstr "Mountain"
 
-#: tour/models.py:55
-msgid "Mountains"
-msgstr "Mountains"
+#: tour/models.py:298
+msgid "Col, Pass"
+msgstr "Col, Pass"
+
+#: tour/models.py:299
+msgid "Crag"
+msgstr "Crag"
+
+#: tour/models.py:300
+msgid "Icefall"
+msgstr "Icefall"
+
+#: tour/models.py:301
+msgid "Slope"
+msgstr "Slope"
+
+#: tour/models.py:339
+msgid "Tour Object"
+msgstr "Tour Object"
+
+#: tour/models.py:340
+msgid "Tour Objects"
+msgstr "Tour Objects"
+
+#: tour/models.py:375
+msgid "Route"
+msgstr "Route"
+
+#: tour/models.py:376
+msgid "Routes"
+msgstr "Routes"
+
+#: tour/models.py:410
+msgid "Touring"
+msgstr "Touring"
+
+#: tour/models.py:411
+msgid "Tourings"
+msgstr "Tourings"
+
+#: tour/models.py:420
+msgid "Unqualified"
+msgstr "Unqualified"
+
+#: tour/models.py:421
+msgid "Instructor"
+msgstr "Instructor"
+
+#: tour/models.py:422
+msgid "National aspirant"
+msgstr "National aspirant"
+
+#: tour/models.py:423
+msgid "National guide"
+msgstr "National guide"
+
+#: tour/models.py:424
+msgid "IFMGA aspirant"
+msgstr "IFMGA aspirant"
+
+#: tour/models.py:425
+msgid "IFMGA/UIAGM guide"
+msgstr "IFMGA/UIAGM guide"
+
+#: tour/models.py:432 tour/models.py:433
+msgid "Birth date"
+msgstr "Birth date"
+
+#: tour/models.py:464
+msgid "Guide Profile"
+msgstr "Guide Profile"
+
+#: tour/models.py:465
+msgid "Guide Profiles"
+msgstr "Guide Profiles"
+
+#: tour/models.py:483
+msgid "Day"
+msgstr "Day"
+
+#: tour/models.py:484
+msgid "Days"
+msgstr "Days"
+
+#: tour/models.py:559
+msgid "Tour"
+msgstr "Tour"
+
+#: tour/models.py:560
+msgid "Tours"
+msgstr "Tours"
+
+#: tour/templates/tour_detail.html:4
+msgid "tour"
+msgstr "tour"
+
+#: tour/templates/tour_list.html:4
+msgid "tour list"
+msgstr "tour list"

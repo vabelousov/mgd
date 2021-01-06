@@ -1,15 +1,29 @@
 from django.contrib import admin
 from .models import Activity, Continent, Country, \
-    Region, Place, TourObject, Route, Touring, Tour,\
-    GuideProfile, Currency, Equipment, TravelDocument, PhysicalLevel, DifficultyLevel, Day
+    Region, Place, TourObject, Route, Touring, Tour, \
+    GuideProfile, Currency, Day, Equipment, TravelDocument, PhysicalLevel, DifficultyLevel, Participant
+#, Vocabulary
 
-# Register your models here.
 
-@admin.register(Day)
-class DayAdmin(admin.ModelAdmin):
-   list_display = ('name', 'tour' )
-   list_filter = ('tour',)
-   search_fields = ('name', 'interary')
+# @admin.register(Vocabulary)
+# class VocabularyAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'description')
+#     list_filter = ('name',)
+#     search_fields = ('name',)
+
+
+class DayInline(admin.TabularInline):
+    model = Day
+    extra = 0
+    max_num = 100
+    classes = ['collapse']
+
+
+class ParticipantInline(admin.TabularInline):
+    model = Participant
+    extra = 0
+    max_num = 30
+    classes = ['collapse']
 
 
 @admin.register(Currency)
@@ -132,11 +146,12 @@ class TouringAdmin(admin.ModelAdmin):
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
+    inlines = [DayInline, ParticipantInline]
     list_display = ('name', 'start_date', 'end_date', 'pk', 'get_activities', 'status', 'date_created')
     list_filter = ('status',)
     search_fields = ('name',)
-    filter_horizontal = ('activity','tour_object','route', 'continent', 'country', 'region', 'place', 'guide',
-                         'equipment_list', 'doc_list')
+    filter_horizontal = ('activity', 'tour_object', 'route', 'continent', 'country',
+                         'region', 'place', 'guide', 'equipment_list', 'travel_documents',)
 
     def get_activities(self, obj):
         return "\n".join([act.name for act in obj.activity.all()])

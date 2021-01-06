@@ -1,6 +1,6 @@
 from django.urls import path
-from django_filters.views import FilterView
-from .filters import TourFilter
+# from django_filters.views import FilterView
+# from .filters import TourFilter
 
 from . import views
 
@@ -8,9 +8,9 @@ app_name = 'tour'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('participate/<int:pk>/', views.participate, name='participate'),
     path('site_statistics/', views.site_statistics, name='site_statistics'),
-    path('tours/', FilterView.as_view(filterset_class=TourFilter,
-                                      template_name='tour_list.html'), name='tour_list'),
+    path('tours/', views.TourFilterListView.as_view(), name='tour_list'),
     path('<slug:arg1>/', views.GlobalListView.as_view(), name="global-list"),
     path('<slug:arg1>/<slug:arg2>/<slug:arg3>/', views.ArgumentListView.as_view(), name="argument-list"),
     path('activity/<slug:slug>/', views.ActivityDetailView.as_view(), name='activity-detail'),

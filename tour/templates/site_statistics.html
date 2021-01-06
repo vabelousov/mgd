@@ -1,15 +1,16 @@
 {% extends "base_generic.html" %}
+{% load i18n %}
 {% block content %}
-[-site statistics-]
+[-{% translate "site statistics" %}-]
 <br>
-<a href="/activities/">activities</a>: {{ activities }}<br>
-<a href="/continents/">continents</a>: {{ continents }}<br>
-<a href="/countries/">countries</a>: {{ countries }}<br>
-<a href="/regions/">regions</a>: {{ regions }}<br>
-<a href="/places/">places</a>: {{ places }}<br>
-<a href="/tour-objects/">tour-objects</a>: {{ tour_objects }}<br>
-<a href="/routes/">routes</a>: {{ routes }}<br>
-<a href="/tourings/">tourings</a>: {{ tourings }}<br>
-<a href="/guides/">guides</a>: {{ guides }}<br>
-<a href="/tours/">tours</a>: {{ tours }}<br>
+<a href="/activities/">{% translate "activities" %}</a>: {{ activities }}<br>
+<a href="/continents/">{% translate "continents" %}</a>: {{ continents }}<br>
+<a href="/countries/">{% translate "countries" %}</a>: {{ countries }}<br>
+<a href="/regions/">{% translate "regions" %}</a>: {{ regions }}<br>
+<a href="/places/">{% translate "places" %}</a>: {{ places }}<br>
+<a href="/tour-objects/">{% translate "tour-objects" %}</a>: {{ tour_objects }}<br>
+<a href="/routes/">{% translate "routes" %}</a>: {{ routes }}<br>
+<a href="/tourings/">{% translate "tourings" %}</a>: {{ tourings }}<br>
+<a href="/guides/">{% translate "guides" %}</a>: {{ guides }}<br>
+<a href="/tours/">{% translate "tours" %}</a>: {{ tours }}<br>
 {% endblock %}

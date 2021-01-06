@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
+{% load i18n %}
 {% block content %}
-[-route-][pk={{ object.pk }}]<br>
+[-{% translate "route" %}-][pk={{ object.pk }}]<br>
 {{ object.name }}<br>
 {{ object.description }}<br>
 [<a href="{{ object.tour_object.get_absolute_url }}">{{ object.tour_object }}</a>]<br>
@@ -8,7 +9,7 @@
 [<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]-[<a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>]-[<a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>]-[<a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>]
 <br>
 {% empty %}
-[no places]<br>
+[{% translate "empty list" %}]<br>
 {% endfor %}
-Created: {{ object.date_created }}<br>
+{% translate "Created" %}: {{ object.date_created }}<br>
 {% endblock %}

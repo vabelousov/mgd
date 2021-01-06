@@ -3,7 +3,7 @@
 db.sqlite3
 mgd/.env
 tour/migrations/*.*
-tour/templates/depricated/*.*
+tour/templates/old/*.*
 # locale/
 
 __*
