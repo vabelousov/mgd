@@ -1,0 +1,232 @@
+https://dbdiagram.io
+
+Table Equipment {
+  pk int [pk, increment]
+  name varchar
+  description varchar
+  equipment_type varchar
+}
+
+Table TravelDocument {
+  pk int [pk, increment]
+  name varchar
+  description varchar
+}
+
+Table PhysicalLevel {
+  pk int [pk, increment]
+  name varchar
+  description varchar
+}
+
+Table DifficultyLevel {
+  pk int [pk, increment]
+  name varchar
+  description varchar
+}
+
+Table Currency {
+  pk int [pk, increment]
+  code varchar
+  slug varchar
+  name varchar
+}
+
+Table Activity {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  date_created timestamp
+}
+
+Table Continent {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  date_created timestamp
+}
+
+Table Country {
+  pk int [pk, increment]
+  continent_id int
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  date_created timestamp
+}
+Ref: Country.continent_id > Continent.pk
+
+Table Region {
+  pk int [pk, increment]
+  country_id int
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  date_created timestamp
+}
+Ref: Region.country_id > Country.pk
+
+Table Place {
+  pk int [pk, increment]
+  region_id int
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  date_created timestamp
+}
+Ref: Place.region_id > Region.pk
+
+Table Refuge {
+  pk int [pk, increment]
+  region_id int
+  name varchar
+  slug varchar
+  description varchar
+  status varchar
+  altitude int
+  weblink varchar
+  date_created timestamp
+}
+Ref: Refuge.region_id > Region.pk
+
+Table TourObject {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  status varchar
+  object_type varchar
+  altitude int
+  description varchar
+  place_id int
+  date_created timestamp
+}
+Ref: TourObject.place_id > Place.pk
+
+Table Route {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  status varchar
+  tour_object_id int
+  place_id int
+  description varchar
+  date_created timestamp
+}
+Ref: Route.place_id > Place.pk
+Ref: Route.tour_object_id > TourObject.pk
+
+Table GuideProfile {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  status varchar
+  country_id int
+  birth_date date
+  qualification varchar
+  about_me varchar
+  date_created timestamp
+}
+Ref: GuideProfile.country_id > Country.pk
+
+Table Tour {
+  pk int [pk, increment]
+  name varchar
+  slug varchar
+  status varchar
+  activity_id int
+  continent_id int
+  country_id int
+  region_id int
+  place_id int
+  refuge_id int
+  guide_id int
+  equipment_list_id int
+  travel_docs_id int
+  difficulty_id int
+  physical_id int
+  currency_id int
+  description varchar
+  danger_caution varchar
+  typical_weather varchar
+  medical_insurance varchar
+  responsability varchar
+  accomodation varchar
+  food varchar
+  add_info varchar
+  rental varchar
+  transport varchar
+  client_guide_ratio int
+  price decimal
+  show_price boolean
+  allow_booking boolean
+  date_created timestamp
+}
+Ref: Tour.activity_id > Activity.pk
+Ref: Tour.continent_id > Continent.pk
+Ref: Tour.country_id > Country.pk
+Ref: Tour.region_id > Region.pk
+Ref: Tour.place_id > Place.pk
+Ref: Tour.refuge_id > Refuge.pk
+Ref: Tour.guide_id > GuideProfile.pk
+Ref: Tour.equipment_list_id > Equipment.pk
+Ref: Tour.travel_docs_id > TravelDocument.pk
+Ref: Tour.difficulty_id > DifficultyLevel.pk
+Ref: Tour.physical_id > PhysicalLevel.pk
+Ref: Tour.currency_id > Currency.pk
+
+Table Day {
+  pk int [pk, increment]
+  name varchar
+  interary varchar
+  ascent int
+  descent int
+  ascent_time int
+  descent_time int
+  tour_id int
+}
+Ref: Day.tour_id > Tour.pk
+
+Table Calendar {
+  pk int [pk, increment]
+  name varchar
+  tour_id int
+  start_date date
+  end_date date
+  status varchar
+  date_created timestamp
+}
+Ref: Calendar.tour_id > Tour.pk
+
+Table Participant {
+  pk int [pk, increment]
+  name varchar
+  calendar_event_id int
+}
+Ref: Participant.calendar_event_id > Calendar.pk
+
+Table PriceOption {
+  pk int [pk, increment]
+  name varchar
+  tour_id int
+  list_type varchar
+}
+Ref: PriceOption.tour_id > Tour.pk
+
+Table TourEvent {
+  pk int [pk, increment]
+  tour_id int
+  tour_object_id int
+  route_id int
+  event_type varchar
+  event_index int
+}
+Ref: TourEvent.tour_id > Tour.pk
+Ref: TourEvent.tour_object_id > TourObject.pk
+Ref: TourEvent.route_id > Route.pk

@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% block content %}
+<div class="detail-body">
+    <div class="detail-title">[-{% translate "refuge" %}-][pk={{ object.pk }}]</div>
+    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-item">{{ object.description }}</div>
+    <div class="detail-item">altitude: {{ object.altitude }}</div>
+    <div class="detail-item">{{ object.name }} <a href="{{ object.web_link }}" target="_blank">web site</a></div>
+    <div class="detail-item">[<a href="{{ object.region.country.continent.get_absolute_url }}">{{ object.region.country.continent }}</a>]</div>
+    <div class="detail-item">[<a href="{{ object.region.country.get_absolute_url }}">{{ object.region.country }}</a>]</div>
+    <div class="detail-item">[<a href="{{ object.region.get_absolute_url }}">{{ object.region }}</a>]</div>
+    <div class="detail-item">[<a href="/refuge/{{ object.slug }}/activities/">{{ object.name }} {% translate "activities" %}</a>]</div>
+    <div class="detail-item">[<a href="/refuge/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]</div>
+    <div class="detail-item">[<a href="/refuge/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]</div>
+    <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
+</div>
+{% endblock %}

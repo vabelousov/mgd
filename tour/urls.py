@@ -21,6 +21,7 @@ urlpatterns = [
     path('guide/<slug:slug>/', views.GuideProfileDetailView.as_view(), name='guide-profile'),
     path('tour-object/<slug:slug>/', views.TourObjectDetailView.as_view(), name='tour-object-detail'),
     path('route/<slug:slug>/', views.RouteDetailView.as_view(), name='route-detail'),
-    path('touring/<slug:slug>/', views.TouringDetailView.as_view(), name='touring-detail'),
+    #  path('touring/<slug:slug>/', views.TouringDetailView.as_view(), name='touring-detail'),
+    path('refuge/<slug:slug>/', views.RefugeDetailView.as_view(), name='refuge-detail'),
     path('tour/<slug:slug>/', views.TourDetailView.as_view(), name='tour-detail'),
 ]

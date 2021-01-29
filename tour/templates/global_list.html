@@ -1,14 +1,18 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-[-{{ list_title }}-]
-<br>
-{% for obj in objects %}
-{% if list_title == 'routes' %}
-[<a href="{{ obj.tour_object.get_absolute_url }}">{{ obj.tour_object }}</a>]-
-{% endif %}
-[<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]</br>
-{% empty %}
-[-{% translate "no entry" %}-]<br>
-{% endfor %}
+<div class="global-list">
+    <div class="page-title">[-{{ list_title }}-]</div>
+    <div class="global-list-header">Name</div>
+    {% for obj in objects %}
+        <div class="global-list-item">
+            {% if list_title == 'routes' %}
+                [<a href="{{ obj.tour_object.get_absolute_url }}">{{ obj.tour_object }}</a>]-
+            {% endif %}
+            [<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]
+        </div>
+    {% empty %}
+        <div class="global-list-item">[-{% translate "no entry" %}-]</div>
+    {% endfor %}
+</div>
 {% endblock %}

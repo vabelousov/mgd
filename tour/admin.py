@@ -1,15 +1,29 @@
 from django.contrib import admin
-from .models import Activity, Continent, Country, \
-    Region, Place, TourObject, Route, Touring, Tour, \
-    GuideProfile, Currency, Day, Equipment, TravelDocument, PhysicalLevel, DifficultyLevel, Participant
-#, Vocabulary
+from .models import Activity, Continent, Country, Tour, \
+    Region, Place, TourObject, Route, Refuge, \
+    GuideProfile, Currency, Day, Equipment, TravelDocument,\
+    PhysicalLevel, DifficultyLevel, Participant, Calendar, PriceOption, TourEvent
 
 
-# @admin.register(Vocabulary)
-# class VocabularyAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'description')
-#     list_filter = ('name',)
-#     search_fields = ('name',)
+class TourEventInline(admin.TabularInline):
+    model = TourEvent
+    extra = 0
+    max_num = 100
+    classes = ['collapse']
+
+
+class CalendarInline(admin.TabularInline):
+    model = Calendar
+    extra = 0
+    max_num = 100
+    classes = ['collapse']
+
+
+class PriceOptionInline(admin.TabularInline):
+    model = PriceOption
+    extra = 0
+    max_num = 100
+    classes = ['collapse']
 
 
 class DayInline(admin.TabularInline):
@@ -19,11 +33,11 @@ class DayInline(admin.TabularInline):
     classes = ['collapse']
 
 
-class ParticipantInline(admin.TabularInline):
-    model = Participant
-    extra = 0
-    max_num = 30
-    classes = ['collapse']
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'calendar_event')
+    list_filter = ('name', 'calendar_event',)
+    search_fields = ('name', 'calendar_event')
 
 
 @admin.register(Currency)
@@ -33,10 +47,17 @@ class CurrencyAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name')
 
 
+@admin.register(Refuge)
+class RefugeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'altitude', 'description')
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
-    list_filter = ('name',)
+    list_display = ('name', 'description', 'equipment_type')
+    list_filter = ('name', 'equipment_type',)
     search_fields = ('name',)
 
 
@@ -131,27 +152,14 @@ class RouteAdmin(admin.ModelAdmin):
         return super(RouteAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
-@admin.register(Touring)
-class TouringAdmin(admin.ModelAdmin):
-    list_display = ('name', 'pk', 'status', 'date_created')
-    list_filter = ('status',)
-    search_fields = ('name', 'description')
-    filter_horizontal = ('place',)
-
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "place":
-            kwargs["queryset"] = Place.objects.filter(status='active')
-        return super(TouringAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
-
-
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    inlines = [DayInline, ParticipantInline]
-    list_display = ('name', 'start_date', 'end_date', 'pk', 'get_activities', 'status', 'date_created')
+    inlines = [DayInline, CalendarInline, PriceOptionInline, TourEventInline]
+    list_display = ('name', 'pk', 'get_activities', 'status', 'date_created')
     list_filter = ('status',)
     search_fields = ('name',)
-    filter_horizontal = ('activity', 'tour_object', 'route', 'continent', 'country',
-                         'region', 'place', 'guide', 'equipment_list', 'travel_documents',)
+    filter_horizontal = ('activity', 'continent', 'country',
+                         'region', 'place', 'guide', 'equipment_list', 'travel_documents', 'refuge')
 
     def get_activities(self, obj):
         return "\n".join([act.name for act in obj.activity.all()])
@@ -159,10 +167,6 @@ class TourAdmin(admin.ModelAdmin):
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "activity":
             kwargs["queryset"] = Activity.objects.filter(status='active')
-        if db_field.name == "tour_object":
-            kwargs["queryset"] = TourObject.objects.filter(status='active')
-        if db_field.name == "route":
-            kwargs["queryset"] = Route.objects.filter(status='active')
         if db_field.name == "place":
             kwargs["queryset"] = Place.objects.filter(status='active')
         return super(TourAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)

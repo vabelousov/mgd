@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="description" content="В горы с Белоусовым">
     <meta name="keywords" content="Горы Альпнизм Восхождение Монблан Альпы Гид Инструктор, Горная школа, Школа альпинизма">
@@ -11,56 +12,69 @@
     <meta name="Address" content="74310, 366 Avenue de la Gare, Les Houches Le Lac, France">
     <!-- Добавление дополнительного статического CSS файла -->
     {% load static %}
-    {% load i18n %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    {% load i18n %}
     {% block title %}<title>{% translate "Mountain guide" %}</title>{% endblock %}
 </head>
 <body>
-
-<form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-    <input name="next" type="hidden" value="{{ redirect_to }}">
-    <select name="language">
-        {% get_current_language as LANGUAGE_CODE %}
-        {% get_available_languages as LANGUAGES %}
-        {% get_language_info_list for LANGUAGES as languages %}
-        {% for language in languages %}
-            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                {{ language.name_local }} ({{ language.code }})
-            </option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="{% translate 'Go' %}">
-</form>
-[<a href="/admin/">{% translate "Admin" %}</a>]
-[<a href="/">{% translate "Index" %}</a>]
-[<a href="/tours/">{% translate "Tours" %}</a>]
-[<a href="/activities/">{% translate "Activities" %}</a>]
-[<a href="/continents/">{% translate "Continents" %}</a>]
-[<a href="/countries/">{% translate "Countries" %}</a>]
-[<a href="/regions/">{% translate "Regions" %}</a>]
-[<a href="/places/">{% translate "Places" %}</a>]
-[<a href="/tour-objects/">{% translate "Tour Objects" %}</a>]
-[<a href="/routes/">{% translate "Routes" %}</a>]
-[<a href="/tourings/">{% translate "Tourings" %}</a>]
-[<a href="/guides/">{% translate "Our Guides" %}</a>]
-[<a href="/site_statistics/">{% translate "Site statistics" %}</a>]
-<hr>
-{% block content %}
-{% endblock %}
-<hr>
-[<a href="/admin/">{% translate "Admin" %}</a>]
-[<a href="/">{% translate "Index" %}</a>]
-[<a href="/tours/">{% translate "Tours" %}</a>]
-[<a href="/activities/">{% translate "Activities" %}</a>]
-[<a href="/continents/">{% translate "Continents" %}</a>]
-[<a href="/countries/">{% translate "Countries" %}</a>]
-[<a href="/regions/">{% translate "Regions" %}</a>]
-[<a href="/places/">{% translate "Places" %}</a>]
-[<a href="/tour-objects/">{% translate "Tour Objects" %}</a>]
-[<a href="/routes/">{% translate "Routes" %}</a>]
-[<a href="/tourings/">{% translate "Tourings" %}</a>]
-[<a href="/guides/">{% translate "Our Guides" %}</a>]
-[<a href="/site_statistics/">{% translate "Site statistics" %}</a>]
+    <header class="header">
+        <div class="menu">
+            <ul>
+                <li><a href="/"><div class="logo"></div></a></li>
+                <li><a href="/">Главная</a></li>
+                <li><a href="/tours/">Туры</a></li>
+                <li><a href="/site_statistics/">О нас</a></li>
+                <li><a href="/admin/">{% translate "Admin" %}</a></li>
+            </ul>
+        </div>
+    </header>
+    <div class="wrapper">
+        <div class="content">
+            <div class="container">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-menu">
+            <ul>
+                <li><a href="/admin/">{% translate "Admin" %}</a></li>
+                <li><a href="/">{% translate "Index" %}</a></li>
+                <li><a href="/tours/">{% translate "Tours" %}</a></li>
+                <li><a href="/activities/">{% translate "Activities" %}</a></li>
+                <li><a href="/continents/">{% translate "Continents" %}</a></li>
+                <li><a href="/countries/">{% translate "Countries" %}</a></li>
+                <li><a href="/regions/">{% translate "Regions" %}</a></li>
+                <li><a href="/places/">{% translate "Places" %}</a></li>
+                <li><a href="/refuges/">{% translate "Refuges" %}</a></li>
+                <li><a href="/tour-objects/">{% translate "Tour Objects" %}</a></li>
+                <li><a href="/routes/">{% translate "Routes" %}</a></li>
+                <li><a href="/guides/">{% translate "Our Guides" %}</a></li>
+                <li><a href="/site_statistics/">{% translate "Site statistics" %}</a></li>
+                <li>
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for language in languages %}
+                        <a class="change_language" href="#" lang-code="{{ language.code }}">
+                            {% if language.code == LANGUAGE_CODE %}&#10003;{% else %}&nbsp;&nbsp;{% endif %}
+                            {{ language.code|upper }}
+                        </a>
+                    {% endfor %}
+                </li>
+            </ul>
+        </div>
+    </footer>
+    <form action="{% url 'set_language' %}" method="post" style="display: none" id="change_language_form">
+       {% comment %}!!!Скрытая форма смены языка!!!{% endcomment %}
+       {% csrf_token %}
+       <select type="hidden">
+           <option type="hidden" id="language-option" value=""></option>
+       </select>
+       <input name="next" type="hidden" value="{{ request.path }}"/>
+       <input type="hidden" value="" name="language" id="language" />
+    </form>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="{% static 'js/script.js' %}"></script>

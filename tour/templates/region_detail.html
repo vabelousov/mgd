@@ -1,17 +1,19 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-[-{% translate "region" %}-][pk={{ object.pk }}]<br>
-{{ object.name }}<br>
-{{ object.description }}<br>
-[<a href="{{ object.country.get_absolute_url }}">{{ object.country }}</a>]<br>
-[<a href="{{ object.country.continent.get_absolute_url }}">{{ object.country.continent }}</a>]<br>
-[<a href="/region/{{ object.slug }}/activities/">{{ object.name }} {% translate "activities" %}</a>]
-[<a href="/region/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]
-[<a href="/region/{{ object.slug }}/places/">{{ object.name }} {% translate "places" %}</a>]
-[<a href="/region/{{ object.slug }}/tour-objects/">{{ object.name }} {% translate "tour-objects" %}</a>]
-[<a href="/region/{{ object.slug }}/routes/">{{ object.name }} {% translate "routes" %}</a>]
-[<a href="/region/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]
-<br>
-{% translate "Created" %}: {{ object.date_created }}
+<div class="detail-body">
+    <div class="detail-title">[-{% translate "region" %}-][pk={{ object.pk }}]</div>
+    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-item">{{ object.description }}</div>
+    <div class="detail-item">[<a href="{{ object.country.get_absolute_url }}">{{ object.country }}</a>]</div>
+    <div class="detail-item">[<a href="{{ object.country.continent.get_absolute_url }}">{{ object.country.continent }}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/activities/">{{ object.name }} {% translate "activities" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/places/">{{ object.name }} {% translate "places" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/refuges/">{{ object.name }} {% translate "refuges" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/tour-objects/">{{ object.name }} {% translate "tour-objects" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/routes/">{{ object.name }} {% translate "routes" %}</a>]</div>
+    <div class="detail-item">[<a href="/region/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]</div>
+    <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
+</div>
 {% endblock %}

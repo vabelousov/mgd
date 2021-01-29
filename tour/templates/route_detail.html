@@ -1,15 +1,18 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-[-{% translate "route" %}-][pk={{ object.pk }}]<br>
-{{ object.name }}<br>
-{{ object.description }}<br>
-[<a href="{{ object.tour_object.get_absolute_url }}">{{ object.tour_object }}</a>]<br>
-{% for plc in object.place.all %}
-[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]-[<a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>]-[<a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>]-[<a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>]
-<br>
-{% empty %}
-[{% translate "empty list" %}]<br>
-{% endfor %}
-{% translate "Created" %}: {{ object.date_created }}<br>
+<div class="detail-body">
+    <div class="detail-title">[-{% translate "route" %}-][pk={{ object.pk }}]</div>
+    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-item">{{ object.description }}</div>
+    <div class="detail-item">[<a href="{{ object.tour_object.get_absolute_url }}">{{ object.tour_object }}</a>]</div>
+    <div class="detail-item">
+        {% for plc in object.place.all %}
+            [<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]-[<a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>]-[<a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>]-[<a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>]
+        {% empty %}
+            [{% translate "empty list" %}]
+        {% endfor %}
+    </div>
+    <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
+</div>
 {% endblock %}

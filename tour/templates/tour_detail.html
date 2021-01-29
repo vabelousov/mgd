@@ -1,90 +1,134 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-[-{% translate "tour" %}-][pk={{ object.pk }}]<br>
-{{ object.name }}<br>
-{% if object.start_date and object.end_date %}{{ object.start_date }}- {{ object.end_date }}
-{% else %}
-{% translate "dates to be confirmed" %}
-{% endif %}
-<br>
-{% for act in object.activity.all %}
-[<a href="{{ act.get_absolute_url }}">{{ act }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for tbj in object.tour_object.all %}
-[<a href="{{ tbj.get_absolute_url }}">{{ tbj }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for rt in object.route.all %}
-[<a href="{{ rt.get_absolute_url }}">{{ rt }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% if object.touring %}
-[<a href="{{ object.touring.get_absolute_url }}">{{ object.touring }}</a>]
-<br>
-{% endif %}
-{% for plc in object.place.all %}
-[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for plc in object.place.all %}
-[<a href="/region/{{ plc.region.slug }}/">{{ plc.region }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for plc in object.place.all %}
-[<a href="/country/{{ plc.region.country.slug }}/">{{ plc.region.country }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for plc in object.place.all %}
-{% ifchanged %}
-[<a href="/continent/{{ plc.region.country.continent.slug }}/">{{ plc.region.country.continent }}</a>]
-{% endifchanged %}
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for gd in object.guide.all %}
-[<a href="{{ gd.get_absolute_url }}">{{ gd }}</a>]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% if object.description %}{% translate "Tour description" %}: {{ object.description }}<br>{% endif %}
-{% if object.day_set %}
-{% for day in object.day_set.all %}
-{% if forloop.first %}{% translate "Program by days" %}:<br>{% endif %}
-[{{ day }}]-[{{ day.interary }}]<br>
-{% endfor %}
-{% endif %}
-{% if object.danger_caution %}{% translate "Danger caution" %}:  {{ object.danger_caution }}<br>{% endif %}
-{% if object.typical_weather %}{% translate "Weather" %}: {{ object.typical_weather }}<br>{% endif %}
-{% if object.medical_insurance %}{% translate "Insurance" %}: {{ object.medical_insurance }}<br>{% endif %}
-{% if object.responsability %}{% translate "Responsability" %}: {{ object.responsability }}<br>{% endif %}
-{% if object.accomodation %}{% translate "Accomodation" %}: {{ object.accomodation }}<br>{% endif %}
-{% if object.food %}{% translate "Food" %}: {{ object.food }}<br>{% endif %}
-{% if object.add_info %}{% translate "Additional info" %}: {{ object.add_info }}<br>{% endif %}
-{% for eq in object.equipment_list.all %}
-{% if forloop.first %}{% translate "Equipment" %}:{% endif %}
-[{{ eq }}]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% for doc in object.travel_documents.all %}
-{% if forloop.first %}{% translate "Travel Documents" %}:{% endif %}
-[{{ doc }}]
-{% if forloop.last %}<br>{% endif %}
-{% endfor %}
-{% if object.physical_level %}{% translate "Physical Level" %}:  {{ object.physical_level }}<br>{% endif %}
-{% if object.difficulty_level %}{% translate "Difficulty Level" %}:  {{ object.difficulty_level }}<br>{% endif %}
-{% if object.time_hours %}{% translate "Time" %}: {{ object.time_hours }}<br>{% endif %}
-{% if object.min_altitude_m %}{% translate "Altitude min" %}: {{ object.min_altitude_m }}<br>{% endif %}
-{% if object.max_altitude_m %}{% translate "Altitude max" %}: {{ object.max_altitude_m }}<br>{% endif %}
-{% if object.altitude_gain_m %}{% translate "Altitude gain" %}: {{ object.altitude_gain_m }}<br>{% endif %}
-{% if object.total_km %}{% translate "Total distance" %}: {{ object.total_km }}<br>{% endif %}
-{% if object.client_guide_ratio %}{% translate "Guide-Client ratio" %}: {{ object.client_guide_ratio }}<br>{% endif %}
-{% translate "Availability" %}: {{ object.get_availability }}<br>
-{% if object.show_price %}
-{% if object.price %}{% translate "Price" %}: {{ object.price }}{% if object.currency %}{{ object.currency }}{% endif %}{% endif %}
-{% if object.get_availability > 0 and object.allow_booking %}<a href="/participate/{{ object.pk }}/">{% translate "Book" %}</a>{% endif %}
-<br>
-{% if object.price_include %}{% translate "Includes" %}: {{ object.price_include }}<br>{% endif %}
-{% if object.price_exclude %}{% translate "Excludes" %}: {{ object.price_exclude }}<br>{% endif %}
-{% endif %}
-{% translate "Created" %}: {{ object.date_created }}
+<div class="detail-body">
+    <div class="detail-title">[-{% translate "tour" %}-][pk={{ object.pk }}]</div>
+    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-item">
+        {% for act in object.activity.all %}[<a href="{{ act.get_absolute_url }}">{{ act }}</a>]{% endfor %}
+    </div>
+    {% if object.tourevent_set %}
+    <div class="detail-item">
+        {% for te in object.tourevent_set.all %}
+        {% if forloop.first %}{% translate "Events (e.g. - climbs)" %}:{% endif %}
+        <div class="detail-item-list">
+            {% if te.event_type == 'acclimatization' %}Acclimatization{% endif %}
+            <a href="{{ te.tour_object.get_absolute_url }}">[{{ te.tour_object }} ({{ te.tour_object.altitude }}m)]</a> - <a href="{{ te.route.get_absolute_url }}">[{{ te.route }}]</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="detail-item">
+        {% for plc in object.place.all %}[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]{% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for rfg in object.refuge.all %}[<a href="{{ rfg.get_absolute_url }}">{{ rfg }}</a>]{% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for plc in object.place.all %}[<a href="/region/{{ plc.region.slug }}/">{{ plc.region }}</a>]{% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for plc in object.place.all %}[<a href="/country/{{ plc.region.country.slug }}/">{{ plc.region.country }}</a>]{% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for plc in object.place.all %}
+            {% ifchanged %}[<a href="/continent/{{ plc.region.country.continent.slug }}/">{{ plc.region.country.continent }}</a>]{% endifchanged %}
+        {% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for gd in object.guide.all %}[<a href="{{ gd.get_absolute_url }}">{{ gd }}</a>]{% endfor %}
+    </div>
+    {% if object.description %}
+    <div class="detail-item">{% translate "Tour description" %}: {{ object.description }}
+    </div>
+    {% endif %}
+    {% if object.day_set %}
+    <div class="detail-item">
+        {% for day in object.day_set.all %}
+        {% if forloop.first %}{% translate "Program by days" %}:{% endif %}
+        <div class="detail-item-list">[{{ day }}]</div>
+        <div class="detail-item-list-body">[{{ day.interary }}]</div>
+        <div class="detail-item-list-metrics">
+            {% if day.ascent > 0 %}набор: [{{ day.ascent }}] m{% endif %}
+            {% if day.ascent_time > 0%}, время на набор: [{{ day.ascent_time_minutes }}]{% endif %}
+            {% if day.descent > 0 %}, сброс: [{{ day.descent }}] m{% endif %}
+            {% if day.descent_time > 0%}, время на сброс: [{{ day.descent_time_minutes }}]{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if object.danger_caution %}
+    <div class="detail-item">{% translate "Danger caution" %}:  {{ object.danger_caution }}</div>
+    {% endif %}
+    {% if object.typical_weather %}
+    <div class="detail-item">{% translate "Weather" %}: {{ object.typical_weather }}</div>
+    {% endif %}
+    {% if object.medical_insurance %}
+    <div class="detail-item">{% translate "Insurance" %}: {{ object.medical_insurance }}</div>
+    {% endif %}
+    {% if object.responsability %}
+    <div class="detail-item">{% translate "Responsability" %}: {{ object.responsability }}</div>
+    {% endif %}
+    {% if object.accomodation %}
+    <div class="detail-item">{% translate "Accomodation" %}: {{ object.accomodation }}</div>
+    {% endif %}
+    {% if object.food %}
+    <div class="detail-item">{% translate "Food" %}: {{ object.food }}</div>
+    {% endif %}
+    {% if object.add_info %}
+    <div class="detail-item">{% translate "Additional info" %}: {{ object.add_info }}</div>
+    {% endif %}
+    <div class="detail-item">
+        {% for eq in object.equipment_list.all %}
+        {% if forloop.first %}{% translate "Equipment" %}:{% endif %}
+        <div class="detail-item-list">[{{ eq }}]</div>
+        {% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for doc in object.travel_documents.all %}
+        {% if forloop.first %}{% translate "Travel Documents" %}:{% endif %}
+        <div class="detail-item-list">[{{ doc }}]</div>
+        {% endfor %}
+    </div>
+    {% if object.physical_level %}
+    <div class="detail-item">{% translate "Physical Level" %}:  {{ object.physical_level }}</div>
+    {% endif %}
+    {% if object.difficulty_level %}
+    <div class="detail-item">{% translate "Difficulty Level" %}:  {{ object.difficulty_level }}</div>
+    {% endif %}
+    {% if object.client_guide_ratio %}
+    <div class="detail-item">{% translate "Guide-Client ratio" %}: {{ object.client_guide_ratio }}</div>
+    {% endif %}
+    <div class="detail-item">
+        {% for event_dates in object.calendar_set.all %}
+        {% if forloop.first %}{% translate "Dates & Availability" %}:{% endif %}
+        <div class="detail-item-list">
+            [{{ event_dates.start_date }} - {{ event_dates.end_date }} (av. {{ event_dates.get_availability }})]
+            {% if event_dates.get_availability > 0 and object.allow_booking %}
+                <a href="/participate/{{ event_dates.pk }}/">{% translate "Book" %}</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% if object.show_price %}
+    {% if object.price %}
+    <div class="detail-item">{% translate "Price" %}: {{ object.price }}{% if object.currency %}{{ object.currency }}{% endif %}</div>
+    {% endif %}
+    {% if object.priceoption_set %}
+    <div class="detail-item">
+        {% for incl in object.priceoption_set.all %}
+        {% if forloop.first %}{% translate "Includes" %}:{% endif %}
+        {% if incl.list_type == 'includes' %}<div class="detail-item-list">[{{ incl }}]</div>{% endif %}
+        {% endfor %}
+    </div>
+    <div class="detail-item">
+        {% for excl in object.priceoption_set.all %}
+        {% if forloop.first %}{% translate "Excludes" %}:{% endif %}
+        {% if excl.list_type == 'excludes' %}<div class="detail-item-list">[{{ excl }}]</div>{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+    <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
+</div>
 {% endblock %}

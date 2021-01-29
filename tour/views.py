@@ -6,10 +6,10 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView
 from django_filters.views import FilterView
-from .filters import TourFilter
+from .filters import TourFilter, CalendarFilter
 from .models import Activity, Continent, Country,\
-    Region, Place, TourObject, Route, Touring, Tour,\
-    GuideProfile
+    Region, Place, TourObject, Route, Tour, Refuge,\
+    GuideProfile, TourEvent, Calendar
 
 
 def participate(request, pk):
@@ -22,7 +22,7 @@ def participate(request, pk):
         send_mail(subject,
             message, recepient, [EMAIL_HOST_USER], fail_silently=False)
         return render(request, 'email_success.html', {'recepient': 'site admin'})
-    return render(request, 'email_participate.html', {'form': par, 'tour': Tour.objects.get(pk=pk)})
+    return render(request, 'email_participate.html', {'form': par, 'tour': Calendar.objects.get(pk=pk)})
 
 
 def index(request):
@@ -41,7 +41,7 @@ def site_statistics(request):
     places = Place.active.count()
     tour_objects = TourObject.active.count()
     routes = Route.active.count()
-    tourings = Touring.active.count()
+    refuges = Refuge.active.count()
     guides = GuideProfile.active.count()
     tours = Tour.active.count()
     return render(
@@ -54,7 +54,7 @@ def site_statistics(request):
                  'places': places,
                  'tour_objects': tour_objects,
                  'routes': routes,
-                 'tourings': tourings,
+                 'refuges': refuges,
                  'tours': tours,
                  'guides': guides,
         },
@@ -62,10 +62,10 @@ def site_statistics(request):
 
 
 class TourFilterListView(FilterView):
-    model = Tour
+    model = Calendar
     context_object_name = 'tour_list'
     template_name = 'tour_list.html'
-    filterset_class = TourFilter
+    filterset_class = CalendarFilter
 
 
 class GlobalListView(ListView):
@@ -91,8 +91,8 @@ class GlobalListView(ListView):
             objects = TourObject.active.all()
         if self.kwargs['arg1'] == 'routes':
             objects = Route.active.all()
-        if self.kwargs['arg1'] == 'tourings':
-            objects = Touring.active.all()
+        if self.kwargs['arg1'] == 'refuges':
+            objects = Refuge.active.all()
         return objects
 
     def get_context_data(self, **kwargs):
@@ -120,6 +120,8 @@ class ArgumentListView(ListView):
                 tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'guide':
                 tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'refuge':
+                tours = Tour.active.filter(refuge__slug=self.kwargs['arg2'])
             objects = Activity.active.filter(tour__in=tours).distinct()
         if self.kwargs['arg3'] == 'continents':
             tours = None
@@ -173,8 +175,18 @@ class ArgumentListView(ListView):
             if self.kwargs['arg1'] == 'guide':
                 tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'tour-object':
-                tours = Tour.active.filter(tour_object__slug=self.kwargs['arg2'])
+                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(tourevent__in=tour_events).distinct()
             objects = Place.active.filter(tour__in=tours).distinct()
+        if self.kwargs['arg3'] == 'refuges':
+            tours = None
+            if self.kwargs['arg1'] == 'continent':
+                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'country':
+                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'region':
+                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
+            objects = Refuge.active.filter(tour__in=tours).distinct()
         if self.kwargs['arg3'] == 'tour-objects':
             if self.kwargs['arg1'] == 'guide':
                 guide_tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
@@ -210,21 +222,6 @@ class ArgumentListView(ListView):
                 objects = Route.active.filter(place__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'tour-object':
                 objects = Route.active.filter(tour_object__slug=self.kwargs['arg2'])
-        if self.kwargs['arg3'] == 'tourings':
-            if self.kwargs['arg1'] == 'continent':
-                countries = Country.active.filter(continent__slug=self.kwargs['arg2'])
-                regions = Region.active.filter(country__in=countries)
-                places = Place.active.filter(region__in=regions)
-                objects = Touring.active.filter(place__in=places)
-            if self.kwargs['arg1'] == 'country':
-                regions = Region.active.filter(country__slug=self.kwargs['arg2'])
-                places = Place.active.filter(region__in=regions)
-                objects = Touring.active.filter(place__in=places)
-            if self.kwargs['arg1'] == 'region':
-                places = Place.active.filter(region__slug=self.kwargs['arg2'])
-                objects = Touring.active.filter(place__in=places)
-            if self.kwargs['arg1'] == 'place':
-                objects = Touring.active.filter(place__slug=self.kwargs['arg2'])
         if self.kwargs['arg3'] == 'tours':
             if self.kwargs['arg1'] == 'activity':
                 objects = Tour.active.filter(activity__slug=self.kwargs['arg2']).all()
@@ -239,7 +236,10 @@ class ArgumentListView(ListView):
             if self.kwargs['arg1'] == 'place':
                 objects = Tour.active.filter(place__slug=self.kwargs['arg2']).distinct()
             if self.kwargs['arg1'] == 'tour-object':
-                objects = Tour.active.filter(tour_object__slug=self.kwargs['arg2'])
+                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
+                objects = Tour.active.filter(tourevent__in=tour_events).distinct()
+            if self.kwargs['arg1'] == 'refuge':
+                objects = Tour.active.filter(refuge__slug=self.kwargs['arg2']).distinct()
         if self.kwargs['arg3'] == 'guides':
             tours = None
             if self.kwargs['arg1'] == 'activity':
@@ -253,7 +253,10 @@ class ArgumentListView(ListView):
             if self.kwargs['arg1'] == 'place':
                 tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'tour-object':
-                tours = Tour.active.filter(tour_object__slug=self.kwargs['arg2'])
+                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(tourevent__in=tour_events).distinct()
+            if self.kwargs['arg1'] == 'refuge':
+                tours = Tour.active.filter(refuge__slug=self.kwargs['arg2'])
             objects = GuideProfile.active.filter(tour__in=tours).distinct()
         return objects
 
@@ -319,12 +322,12 @@ class PlaceDetailView(DetailView):
         return reverse('tour:place-detail', kwargs={'slug': self.kwargs['slug']})
 
 
-class TouringDetailView(DetailView):
-    model = Touring
-    template_name = 'touring_detail.html'
+class RefugeDetailView(DetailView):
+    model = Refuge
+    template_name = 'refuge_detail.html'
 
     def get_success_url(self):
-        return reverse('tour:touring-detail', kwargs={'slug': self.kwargs['slug']})
+        return reverse('tour:refuge-detail', kwargs={'slug': self.kwargs['slug']})
 
 
 class TourDetailView(DetailView):

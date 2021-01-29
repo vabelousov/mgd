@@ -26,10 +26,21 @@ class Vocabulary(models.Model):
 
 
 class Equipment(Vocabulary):
+    EQUIP_CHOICES = (
+        ('closes', _('Closes')),
+        ('equip', _('Equipment')),
+        ('rent', _('From rentals')),
+    )
     vocabulary_type = 'equipment'
+    equipment_type = models.CharField(
+        max_length=6,
+        choices=EQUIP_CHOICES,
+        default='equip'
+    )
 
     class Meta:
         ordering = (
+            'equipment_type',
             'name',
         )
         verbose_name = _('Equipment')
@@ -40,6 +51,9 @@ class TravelDocument(Vocabulary):
     vocabulary_type = 'travel_document'
 
     class Meta:
+        ordering = (
+            'name',
+        )
         verbose_name = _('Document')
         verbose_name_plural = _('Documents')
 
@@ -48,6 +62,9 @@ class PhysicalLevel(Vocabulary):
     vocabulary_type = 'physical_level'
 
     class Meta:
+        ordering = (
+            'name',
+        )
         verbose_name = _('Physical Level')
         verbose_name_plural = _('Physical Levels')
 
@@ -56,6 +73,9 @@ class DifficultyLevel(Vocabulary):
     vocabulary_type = 'difficulty_level'
 
     class Meta:
+        ordering = (
+            'name',
+        )
         verbose_name = _('Difficulty Level')
         verbose_name_plural = _('Difficulty Levels')
 
@@ -250,6 +270,50 @@ class Place(models.Model):
         verbose_name_plural = _('Places')
 
 
+class Refuge(models.Model):
+    STATUS_CHOICES = (
+        ('disabled', _('Disabled')),
+        ('active', _('Active')),
+    )
+    name = models.CharField(max_length=250, verbose_name=_('Name'))
+    slug = models.SlugField(max_length=250,
+                            unique_for_date='date_created')
+    region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, verbose_name=_('Region'))
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+    altitude = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Altitude')
+    )
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    web_link = models.URLField(
+        null=True, blank=True, verbose_name=_('Web link')
+    )
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    objects = models.Manager()
+    active = ActiveManager()
+    disabled = DisabledManager()
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('tour:refuge-detail', kwargs={'slug': self.slug})
+
+    class Meta:
+        ordering = (
+            'region',
+        )
+        verbose_name = _('Refuge')
+        verbose_name_plural = _('Refuges')
+
+
 class TourObject(models.Model):
     STATUS_CHOICES = (
         ('disabled', _('Disabled')),
@@ -345,41 +409,6 @@ class Route(models.Model):
         verbose_name_plural = _('Routes')
 
 
-class Touring(models.Model):
-    STATUS_CHOICES = (
-        ('disabled', _('Disabled')),
-        ('active', _('Active')),
-    )
-    name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
-    status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default='active'
-    )
-    place = models.ManyToManyField(Place, verbose_name=_('Place'))
-    description = models.TextField(blank=True, verbose_name=_('Description'))
-    date_created = models.DateTimeField(auto_now_add=True, null=True)
-
-    objects = models.Manager()
-    active = ActiveManager()
-    disabled = DisabledManager()
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse('tour:touring-detail', kwargs={'slug': self.slug})
-
-    class Meta:
-        ordering = (
-            'name',
-        )
-        verbose_name = _('Touring')
-        verbose_name_plural = _('Tourings')
-
-
 class GuideProfile(models.Model):
     STATUS_CHOICES = (
         ('disabled', _('Disabled')),
@@ -438,6 +467,30 @@ class GuideProfile(models.Model):
 class Day(models.Model):
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     interary = models.TextField(blank=True, verbose_name=_('Interary'))
+    ascent = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Ascent')
+    )
+    descent = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Descent')
+    )
+    ascent_time_minutes = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Ascent time')
+    )
+    descent_time_minutes = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Descent time')
+    )
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
 
     def __str__(self):
@@ -456,7 +509,7 @@ class Day(models.Model):
 
 class Participant(models.Model):
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+    calendar_event = models.ForeignKey('Calendar', on_delete=models.CASCADE, default=1, verbose_name=_('Calendar'))
 
     def __str__(self):
         return self.name
@@ -469,7 +522,107 @@ class Participant(models.Model):
             'name',
         )
         verbose_name = _('Participant')
-        verbose_name_plural = _('Perticipants')
+        verbose_name_plural = _('Participants')
+
+
+class Calendar(models.Model):
+    STATUS_CHOICES = (
+        ('disabled', _('Disabled')),
+        ('active', _('Active')),
+    )
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+    start_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text=_('Date from'),
+        verbose_name=_('Date from')
+    )
+    end_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text=_('Date through'),
+        verbose_name=_('Date through')
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        period = str(self.start_date)+' - '+str(self.end_date)
+        if period == '-':
+            period = _('by demand')
+        return self.tour.name+'-['+period+']'
+
+    def get_availability(self):
+        guide_cnt = self.tour.guide.count()
+        return guide_cnt*self.tour.client_guide_ratio-Participant.objects.filter(calendar_event__exact=self.pk).count()
+
+    class Meta:
+        ordering = (
+            'tour',
+            '-start_date',
+        )
+        verbose_name = _('Calendar Event')
+        verbose_name_plural = _('Calendar Events')
+
+
+class PriceOption(models.Model):
+    LIST_TYPE_CHOICES = (
+        ('includes', _('Includes')),
+        ('excludes', _('Excludes')),
+    )
+    name = models.CharField(max_length=1000, verbose_name=_('Name'))
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+    list_type = models.CharField(
+        max_length=10,
+        choices=LIST_TYPE_CHOICES,
+        default='excludes'
+    )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('tour:price-option', kwargs={'slug': self.name})
+
+    class Meta:
+        ordering = (
+            'name',
+        )
+        verbose_name = _('Price option')
+        verbose_name_plural = _('Price options')
+
+
+class TourEvent(models.Model):
+    EVENT_TYPE_CHOICES = (
+        ('ascent', _('Ascent')),
+        ('acclimatization', _('Acclimatization')),
+    )
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+    tour_object = models.ForeignKey('TourObject', on_delete=models.CASCADE, default=1, verbose_name=_('Tour Object'))
+    route = models.ForeignKey('Route', on_delete=models.CASCADE, default=1, verbose_name=_('Route'))
+    event_type = models.CharField(
+        max_length=15,
+        choices=EVENT_TYPE_CHOICES,
+        default='ascent'
+    )
+    event_index = models.IntegerField(default=0, verbose_name=_('Event Index'))
+
+    def __str__(self):
+        return self.tour.name+' '+self.tour_object.name+' '+self.route.name
+
+    def get_absolute_url(self):
+        return reverse('tour:tour-event', kwargs={'pk': self.pk})
+
+    class Meta:
+        ordering = (
+            'event_index',
+        )
+        verbose_name = _('Tour Event')
+        verbose_name_plural = _('Tour Events')
 
 
 class Tour(models.Model):
@@ -478,9 +631,6 @@ class Tour(models.Model):
         ('active', _('Active')),
     )
     activity = models.ManyToManyField(Activity, verbose_name=_('Activity'))
-    tour_object = models.ManyToManyField(TourObject, blank=True, verbose_name=_('Tour Object'))
-    route = models.ManyToManyField(Route, blank=True, verbose_name=_('Route'))
-    touring = models.ForeignKey(Touring, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Touring'))
     continent = models.ManyToManyField(Continent, blank=True, verbose_name=_('Continent'))
     country = models.ManyToManyField(Country, blank=True, verbose_name=_('Country'))
     region = models.ManyToManyField(Region, blank=True, verbose_name=_('Region'))
@@ -498,27 +648,13 @@ class Tour(models.Model):
     typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))
     medical_insurance = models.TextField(blank=True, verbose_name=_('Insurance'))
     responsability = models.TextField(blank=True, verbose_name=_('Resposability'))
+    refuge = models.ManyToManyField(Refuge, blank=True, verbose_name=_('Refuge'))
     accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))
     food = models.TextField(blank=True, verbose_name=_('Food'))
     add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))
+    rental = models.TextField(blank=True, verbose_name=_('Rental'))
+    transport = models.TextField(blank=True, verbose_name=_('Transport'))
     guide = models.ManyToManyField(GuideProfile, blank=True, verbose_name=_('Guide Profile'))
-    start_date = models.DateField(
-        null=True,
-        blank=True,
-        help_text=_('Date from'),
-        verbose_name=_('Date from')
-    )
-    end_date = models.DateField(
-        null=True,
-        blank=True,
-        help_text=_('Date through'),
-        verbose_name=_('Date through')
-    )
-    time_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, verbose_name=_('Time'))
-    min_altitude_m = models.IntegerField(default=0, verbose_name=_('Altitude min'))
-    max_altitude_m = models.IntegerField(default=0, verbose_name=_('Altitude max'))
-    altitude_gain_m = models.IntegerField(default=0, verbose_name=_('Altitude gain'))
-    total_km = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Total distance'))
     equipment_list = models.ManyToManyField(Equipment, blank=True, verbose_name=_('Equipment'))
     travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
     difficulty_level = models.ForeignKey(
@@ -542,8 +678,6 @@ class Tour(models.Model):
         null=True, blank=True,
         verbose_name=_('Currency')
     )
-    price_include = models.TextField(blank=True, verbose_name=_('Includes'))
-    price_exclude = models.TextField(blank=True, verbose_name=_('Excludes'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -555,10 +689,6 @@ class Tour(models.Model):
 
     def get_absolute_url(self):
         return reverse('tour:tour-detail', kwargs={'slug': self.slug})
-
-    def get_availability(self):
-        guide_cnt = self.guide.count()
-        return guide_cnt*self.client_guide_ratio-Participant.objects.filter(tour__pk=self.pk).count()
 
     def get_days_count(self):
         return Day.objects.filter(tour__pk=self.pk).count()

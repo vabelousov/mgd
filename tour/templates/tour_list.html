@@ -1,124 +1,194 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-[-{% translate "tour list" %}-]
-  <form method="get" action="." id="id-filter-form">
-      <div class="row">
-          <div class="block">
-             {{ filter.form.o.label_tag }}
-             <select name="o" id="id_o">
-                {% for choice in filter.form.o %}
-                {{ choice.tag }} {{ choice.choice_label }}
+<div class="main-body" id="slide-in-2">
+    <div class="tour-list">
+        <div class="tour-header">
+            <div class="tour-header-cell flex-10">
+                Начало
+                <a href="#" onclick="SortBy('start_date')"><i class="arrow up"></i></a>
+                <a href="#" onclick="SortBy('-start_date')"><i class="arrow down"></i></a>
+            </div>
+            <div class="tour-header-cell flex-10">
+                Окончание
+                <a href="#" onclick="SortBy('end_date')"><i class="arrow up"></i></a>
+                <a href="#" onclick="SortBy('-end_date')"><i class="arrow down"></i></a>
+            </div>
+            <div class="tour-header-cell flex-50">
+                Тур
+                <a href="#" onclick="SortBy('name')"><i class="arrow up"></i></a>
+                <a href="#" onclick="SortBy('-name')"><i class="arrow down"></i></a>
+            </div>
+            <div class="tour-header-cell flex-20">Страна</div>
+            <div class="tour-header-cell flex-10">
+                Цена, EUR
+                <a href="#" onclick="SortBy('price')"><i class="arrow up"></i></a>
+                <a href="#" onclick="SortBy('-price')"><i class="arrow down"></i></a>
+            </div>
+        </div>
+        {% for calendar_event in filter.qs %}
+        <div class="tour-item">
+            <div class="tour-item-cell flex-10">
+                {{ calendar_event.start_date }}
+            </div>
+            <div class="tour-item-cell flex-10">
+                {{ calendar_event.end_date }}
+            </div>
+            <div class="tour-item-cell flex-50">
+                <a href="{{ calendar_event.tour.get_absolute_url }}">{{ calendar_event.tour }}</a>
+            </div>
+            <div class="tour-item-cell flex-20">
+                {% for ctr in calendar_event.tour.country.all %}
+                    <a href="{{ ctr.get_absolute_url }}">[{{ ctr }}]</a>
                 {% endfor %}
-             </select>
-          </div>
-          <div class="block">{{ filter.form.search.label_tag }} {{ filter.form.search }}</div>
-          <div class="block">{{ filter.form.price__gt.label_tag }}{{ filter.form.price__gt }}<br>
-          {{ filter.form.price__lt.label_tag }} {{ filter.form.price__lt }}</div>
-          <div class="block">{{ filter.form.from_date.label_tag }}<br>{{ filter.form.from_date }}<br>
-          {{ filter.form.through_date.label_tag }}<br>{{ filter.form.through_date }}</div>
-          <div class="block">
-             {{ filter.form.difficulty_level.label_tag }}
-             <select name="difficulty_level" id="id_difficulty_level" multiple size="5">
-                {% for choice in filter.form.difficulty_level %}
-                {{ choice.tag }}{{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.physical_level.label_tag }}
-             <select name="physical_level" id="id_physical_level" multiple size="5">
-                {% for choice in filter.form.physical_level %}
-                {{ choice.tag }}{{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.guide.label_tag }}
-             <select name="guide" id="id_guide" multiple size="5">
-                {% for choice in filter.form.guide %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-      </div>
-      <div class="row">
-          <div class="block">
-             {{ filter.form.activity.label_tag }}
-             <select name="activity" id="id_activity" multiple size="5">
-                {% for choice in filter.form.activity %}
-                {{ choice.tag }}{{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.continent.label_tag }}
-             <select name="continent" id="id_continent" multiple size="5">
-                {% for choice in filter.form.continent %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.country.label_tag }}
-             <select name="country" id="id_country" multiple size="5">
-                {% for choice in filter.form.country %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.region.label_tag }}
-             <select name="region" id="id_region" multiple size="5">
-                {% for choice in filter.form.region %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.place.label_tag }}
-             <select name="place" id="id_place" multiple size="5">
-                {% for choice in filter.form.place %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.tour_object.label_tag }}
-             <select name="tour_object" id="id_tour_object" multiple size="5">
-                {% for choice in filter.form.tour_object %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.route.label_tag }}
-             <select name="route" id="id_route" multiple size="5">
-                {% for choice in filter.form.route %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-          <div class="block">
-             {{ filter.form.touring.label_tag }}
-             <select name="touring" id="id_touring" multiple size="5">
-                {% for choice in filter.form.touring %}
-                {{ choice.tag }} {{ choice.choice_label }}
-                {% endfor %}
-             </select>
-          </div>
-      </div>
-      <button type="submit" value="Submit">{% translate "Filter" %}</button>
-      <a href=".">{% translate "Clear filters" %}</a>
-  </form>
-    <p>
-        sort by:
-        <a href="#" onclick="SortBy('price')">[Price (asc)]</a>
-        <a href="#" onclick="SortBy('-price')">[Price (dsc)]</a>
-    </p>
-  <ul>
-  {% for tour in filter.qs %}
-    <li>[<a href="{{ tour.get_absolute_url }}">{{ tour }}</a>]</li>
-  {% endfor %}
-  </ul>
+            </div>
+            <div class="tour-item-cell flex-10">{{ calendar_event.tour.price }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="slide-panel" id="toggle">
+    <i class="arrow right"></i>
+</div>
+<div class="right-panel" id="slide-in">
+    <div class="filter">
+        <form method="get" action="." id="id-filter-form">
+            <div class="form-row">
+                 <select name="o" id="id_o" hidden>
+                    {% for choice in filter.form.o %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                {{ filter.form.search.label_tag }}
+                {{ filter.form.search }}
+            </div>
+            <div class="form-row">
+                <label for="id_start_date">Даты: </label>
+                {{ filter.form.start_date }}
+                {{ filter.form.end_date }}
+            </div>
+            <div class="form-row">
+                <label for="id_tour__price__gt">Цена: </label>
+                {{ filter.form.tour__price__gt }}
+                {{ filter.form.tour__price__lt }}
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__difficulty_level">Уровень сложности <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__difficulty_level" id="id_tour__difficulty_level" multiple size="5">
+                    {% for choice in filter.form.tour__difficulty_level %}
+                    {{ choice.tag }}{{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__physical_level">Физическая подготовка <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__physical_level" id="id_tour__physical_level" multiple size="5">
+                    {% for choice in filter.form.tour__physical_level %}
+                    {{ choice.tag }}{{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" class="row-click" for="id_tour__guide">Гиды <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__guide" id="id_tour__guide" multiple size="5">
+                    {% for choice in filter.form.tour__guide %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__activity">Вид активности <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__activity" id="id_tour__activity" multiple size="5">
+                    {% for choice in filter.form.tour__activity %}
+                    {{ choice.tag }}{{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__continent">Континент <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__continent" id="id_tour__continent" multiple size="5">
+                    {% for choice in filter.form.tour__continent %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__country">Страны <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__country" id="id_tour__country" multiple size="5">
+                    {% for choice in filter.form.tour__country %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__region">Регионы <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__region" id="id_tour__region" multiple size="5">
+                    {% for choice in filter.form.tour__region %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__place">Места <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__place" id="id_tour__place" multiple size="5">
+                    {% for choice in filter.form.tour__place %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__tourevent__tour_object">Объекты <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__tourevent__tour_object" id="id_tour__tourevent__tour_object" multiple size="5">
+                    {% for choice in filter.form.tour__tourevent__tour_object %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__tourevent__route">Маршруты <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__tourevent__route" id="id_tour__tourevent__route" multiple size="5">
+                    {% for choice in filter.form.tour__tourevent__route %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <label class="label-click" for="id_tour__refuge">Приюты <i class="arrow down"></i></label>
+            </div>
+            <div class="form-row row-slide">
+                 <select name="tour__refuge" id="id_tour__refuge" multiple size="5">
+                    {% for choice in filter.form.tour__refuge %}
+                    {{ choice.tag }} {{ choice.choice_label }}
+                    {% endfor %}
+                 </select>
+            </div>
+            <div class="form-row">
+                <button type="submit" value="Submit">{% translate "Filter" %}</button>
+                <a href=".">{% translate "Clear filters" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
