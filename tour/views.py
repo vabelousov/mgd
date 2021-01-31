@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView
 from django_filters.views import FilterView
-from .filters import TourFilter, CalendarFilter
+from .filters import CalendarFilter
 from .models import Activity, Continent, Country,\
     Region, Place, TourObject, Route, Tour, Refuge,\
     GuideProfile, TourEvent, Calendar
@@ -109,102 +109,152 @@ class ArgumentListView(ListView):
     def get_queryset(self):
         objects = Tour.active.all()
         if self.kwargs['arg3'] == 'activities':
-            tours = None
+            routes = None
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(
+                    tourevent__route__place__region__country__continent__slug=self.kwargs['arg2']
+                )
             if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(tourevent__route__place__region__country__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(tourevent__route__place__region__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'place':
-                tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(tourevent__route__place__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'guide':
-                tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        tour__in=Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                    )
+                )
             if self.kwargs['arg1'] == 'refuge':
-                tours = Tour.active.filter(refuge__slug=self.kwargs['arg2'])
-            objects = Activity.active.filter(tour__in=tours).distinct()
+                routes = Route.active.filter(tourevent__route__refuge__slug=self.kwargs['arg2'])
+            objects = Activity.active.filter(route__in=routes).distinct()
         if self.kwargs['arg3'] == 'continents':
-            tours = None
+            countries = None
             if self.kwargs['arg1'] == 'activity':
-                tours = Tour.active.filter(activity__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'place':
-                tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
+                countries = Country.active.filter(
+                    region__in=Region.active.filter(
+                        place__in=Place.active.filter(
+                            route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                        )
+                    )
+                )
             if self.kwargs['arg1'] == 'guide':
-                tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
-            objects = Continent.active.filter(tour__in=tours).distinct()
+                countries = Country.active.filter(
+                    region__in=Region.active.filter(
+                        place__in=Place.active.filter(
+                            route__in=Route.active.filter(
+                                tourevent__in=TourEvent.objects.filter(
+                                    tour__in=Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                                )
+                            )
+                        )
+                    )
+                )
+            objects = Continent.active.filter(country__in=countries).distinct()
         if self.kwargs['arg3'] == 'countries':
-            tours = None
+            regions = None
             if self.kwargs['arg1'] == 'activity':
-                tours = Tour.active.filter(activity__slug=self.kwargs['arg2'])
+                regions = Region.active.filter(
+                    place__in=Place.active.filter(
+                        route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                    )
+                )
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'place':
-                tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
+                regions = Region.active.filter(
+                    region=Continent.active.get(continent__slug__exact=self.kwargs['arg2']).country.region
+                )
             if self.kwargs['arg1'] == 'guide':
-                tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
-            objects = Country.active.filter(tour__in=tours).distinct()
+                regions = Region.active.filter(
+                    place__in=Place.active.filter(
+                        route__in=Route.active.filter(
+                            tourevent__in=TourEvent.objects.filter(
+                                tour__in=Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                            )
+                        )
+                    )
+                )
+            objects = Country.active.filter(region__in=regions).distinct()
         if self.kwargs['arg3'] == 'regions':
-            tours = None
+            places = None
             if self.kwargs['arg1'] == 'activity':
-                tours = Tour.active.filter(activity__slug=self.kwargs['arg2'])
+                places = Place.active.filter(
+                    route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                )
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+                places = Place.active.filter(region__country__continent__slug__exact=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
-            if self.kwargs['arg1'] == 'place':
-                tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
+                places = Place.active.filter(region__country__slug__exact=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'guide':
-                tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
-            objects = Region.active.filter(tour__in=tours).distinct()
+                places = Place.active.filter(
+                    route__in=Route.active.filter(
+                        tourevent__in=TourEvent.objects.filter(
+                            tour__in=Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                        )
+                    )
+                )
+            objects = Region.active.filter(place__in=places).distinct()
         if self.kwargs['arg3'] == 'places':
-            tours = None
+            routes = None
             if self.kwargs['arg1'] == 'activity':
-                tours = Tour.active.filter(activity__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(activity__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(place__region__country__continent__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(place__region__country__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(place__region__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'guide':
-                tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        tour__in=Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                   )
+                )
             if self.kwargs['arg1'] == 'tour-object':
-                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
-                tours = Tour.active.filter(tourevent__in=tour_events).distinct()
-            objects = Place.active.filter(tour__in=tours).distinct()
+                routes = Route.active.filter(tour_object__slug__exact=self.kwargs['arg2'])
+            objects = Place.active.filter(route__in=routes).distinct()
         if self.kwargs['arg3'] == 'refuges':
-            tours = None
+            routes = None
+            if self.kwargs['arg1'] == 'activity':
+                routes = Route.active.filter(activity__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(place__region__country__continent__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
+                routes = Route.active.filter(place__region__country__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
-            objects = Refuge.active.filter(tour__in=tours).distinct()
+                routes = Route.active.filter(place__region__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'place':
+                routes = Route.active.filter(place__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'tour-object':
+                routes = Route.active.filter(tour_object__slug__exact=self.kwargs['arg2'])
+            objects = Refuge.active.filter(route__in=routes).distinct()
         if self.kwargs['arg3'] == 'tour-objects':
             if self.kwargs['arg1'] == 'guide':
                 guide_tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
-                objects = TourObject.active.filter(tour__in=guide_tours).distinct()
+                tour_events = TourEvent.objects.filter(tour__in=guide_tours)
+                objects = TourObject.active.filter(tourevent__in=tour_events).distinct()
+            if self.kwargs['arg1'] == 'refuge':
+                objects = TourObject.active.filter(
+                    route__in=Route.active.filter(refuge__slug__exact=self.kwargs['arg2'])
+                ).distinct()
             if self.kwargs['arg1'] == 'continent':
                 countries = Country.active.filter(continent__slug=self.kwargs['arg2'])
                 regions = Region.active.filter(country__in=countries)
                 places = Place.active.filter(region__in=regions)
-                objects = TourObject.active.filter(place__in=places).distinct()
+                routes = Route.active.filter(place__in=places)
+                objects = TourObject.active.filter(route__in=routes).distinct()
             if self.kwargs['arg1'] == 'country':
                 regions = Region.active.filter(country__slug=self.kwargs['arg2'])
                 places = Place.active.filter(region__in=regions)
-                objects = TourObject.active.filter(place__in=places).distinct()
+                routes = Route.active.filter(place__in=places)
+                objects = TourObject.active.filter(route__in=routes).distinct()
             if self.kwargs['arg1'] == 'region':
                 places = Place.active.filter(region__slug=self.kwargs['arg2'])
-                objects = TourObject.active.filter(place__in=places).distinct()
+                routes = Route.active.filter(place__in=places)
+                objects = TourObject.active.filter(route__in=routes).distinct()
             if self.kwargs['arg1'] == 'place':
-                objects = TourObject.active.filter(place__slug=self.kwargs['arg2']).distinct()
+                routes = Route.active.filter(place__slug=self.kwargs['arg2'])
+                objects = TourObject.active.filter(route__in=routes).distinct()
         if self.kwargs['arg3'] == 'routes':
             if self.kwargs['arg1'] == 'continent':
                 countries = Country.active.filter(continent__slug=self.kwargs['arg2'])
@@ -222,41 +272,129 @@ class ArgumentListView(ListView):
                 objects = Route.active.filter(place__slug=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'tour-object':
                 objects = Route.active.filter(tour_object__slug=self.kwargs['arg2'])
+            if self.kwargs['arg1'] == 'guide':
+                guide_tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
+                tour_events = TourEvent.objects.filter(tour__in=guide_tours)
+                objects = Route.active.filter(tourevent__in=tour_events).distinct()
+            if self.kwargs['arg1'] == 'refuge':
+                objects = Route.active.filter(refuge__slug__exact=self.kwargs['arg2']).distinct()
         if self.kwargs['arg3'] == 'tours':
             if self.kwargs['arg1'] == 'activity':
-                objects = Tour.active.filter(activity__slug=self.kwargs['arg2']).all()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                    )
+                ).distinct()
             if self.kwargs['arg1'] == 'guide':
                 objects = Tour.active.filter(guide__slug=self.kwargs['arg2']).all()
             if self.kwargs['arg1'] == 'continent':
-                objects = Tour.active.filter(continent__slug=self.kwargs['arg2']).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(
+                                region__in=Region.active.filter(
+                                    country__in=Country.active.filter(continent__slug__exact=self.kwargs['arg2'])
+                                )
+                            )
+                        )
+                    )
+                ).distinct()
             if self.kwargs['arg1'] == 'country':
-                objects = Tour.active.filter(country__slug=self.kwargs['arg2']).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(
+                                region__in=Region.active.filter(country__slug__exact=self.kwargs['arg2'])
+                            )
+                        )
+                    )
+                ).distinct()
             if self.kwargs['arg1'] == 'region':
-                objects = Tour.active.filter(region__slug=self.kwargs['arg2']).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(region__slug__exact=self.kwargs['arg2'])
+                        )
+                    )
+                ).distinct()
             if self.kwargs['arg1'] == 'place':
-                objects = Tour.active.filter(place__slug=self.kwargs['arg2']).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(place__slug__exact=self.kwargs['arg2'])
+                    )
+                ).distinct()
             if self.kwargs['arg1'] == 'tour-object':
-                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
-                objects = Tour.active.filter(tourevent__in=tour_events).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(tour_object__slug=self.kwargs['arg2'])
+                ).distinct()
+            if self.kwargs['arg1'] == 'route':
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(route__slug=self.kwargs['arg2'])
+                ).distinct()
             if self.kwargs['arg1'] == 'refuge':
-                objects = Tour.active.filter(refuge__slug=self.kwargs['arg2']).distinct()
+                objects = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(refuge__slug=self.kwargs['arg2'])
+                    )
+                ).distinct()
         if self.kwargs['arg3'] == 'guides':
             tours = None
             if self.kwargs['arg1'] == 'activity':
-                tours = Tour.active.filter(activity__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                    )
+                )
             if self.kwargs['arg1'] == 'continent':
-                tours = Tour.active.filter(continent__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(
+                                region__in=Region.active.filter(
+                                    country__in=Country.active.filter(continent__slug__exact=self.kwargs['arg2'])
+                                )
+                            )
+                        )
+                    )
+                )
             if self.kwargs['arg1'] == 'country':
-                tours = Tour.active.filter(country__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(
+                                region__in=Region.active.filter(country__slug__exact=self.kwargs['arg2'])
+                            )
+                        )
+                    )
+                )
             if self.kwargs['arg1'] == 'region':
-                tours = Tour.active.filter(region__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(
+                            place__in=Place.active.filter(region__slug__exact=self.kwargs['arg2'])
+                        )
+                    )
+                )
             if self.kwargs['arg1'] == 'place':
-                tours = Tour.active.filter(place__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(place__slug__exact=self.kwargs['arg2'])
+                    )
+                )
             if self.kwargs['arg1'] == 'tour-object':
-                tour_events = TourEvent.objects.filter(obj__slug=self.kwargs['arg2'])
-                tours = Tour.active.filter(tourevent__in=tour_events).distinct()
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(tour_object__slug=self.kwargs['arg2'])
+                ).distinct()
+            if self.kwargs['arg1'] == 'route':
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(route__slug=self.kwargs['arg2'])
+                ).distinct()
             if self.kwargs['arg1'] == 'refuge':
-                tours = Tour.active.filter(refuge__slug=self.kwargs['arg2'])
+                tours = Tour.active.filter(
+                    tourevent__in=TourEvent.objects.filter(
+                        route__in=Route.active.filter(refuge__slug__exact=self.kwargs['arg2'])
+                    )
+                )
             objects = GuideProfile.active.filter(tour__in=tours).distinct()
         return objects
 

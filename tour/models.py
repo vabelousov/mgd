@@ -1,8 +1,7 @@
 from django.db import models
+from django.db.models import Max, Min
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-
-# Create your models here.
 
 
 class ActiveManager(models.Manager):
@@ -38,6 +37,8 @@ class Equipment(Vocabulary):
         default='equip'
     )
 
+    objects = models.Manager()
+
     class Meta:
         ordering = (
             'equipment_type',
@@ -50,6 +51,8 @@ class Equipment(Vocabulary):
 class TravelDocument(Vocabulary):
     vocabulary_type = 'travel_document'
 
+    objects = models.Manager()
+
     class Meta:
         ordering = (
             'name',
@@ -60,6 +63,9 @@ class TravelDocument(Vocabulary):
 
 class PhysicalLevel(Vocabulary):
     vocabulary_type = 'physical_level'
+    level_index = models.IntegerField(default=0, verbose_name=_('Level Index'))
+
+    objects = models.Manager()
 
     class Meta:
         ordering = (
@@ -71,6 +77,9 @@ class PhysicalLevel(Vocabulary):
 
 class DifficultyLevel(Vocabulary):
     vocabulary_type = 'difficulty_level'
+    level_index = models.IntegerField(default=0, verbose_name=_('Level Index'))
+
+    objects = models.Manager()
 
     class Meta:
         ordering = (
@@ -84,6 +93,8 @@ class Currency(models.Model):
     code = models.CharField(max_length=4, verbose_name=_('Code'))
     slug = models.SlugField(max_length=4)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.code
@@ -250,6 +261,12 @@ class Place(models.Model):
         default='active'
     )
     description = models.TextField(blank=True, verbose_name=_('Description'))
+    altitude = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        default=0,
+        verbose_name=_('Altitude')
+    )
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -278,7 +295,8 @@ class Refuge(models.Model):
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
-    region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, verbose_name=_('Region'))
+    #  ??? как увязать приют в место, район и тд. сейчас через маршрут
+    default_place = models.ManyToManyField(Place, verbose_name=_('Place by default'))
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -308,7 +326,7 @@ class Refuge(models.Model):
 
     class Meta:
         ordering = (
-            'region',
+            'name',
         )
         verbose_name = _('Refuge')
         verbose_name_plural = _('Refuges')
@@ -347,7 +365,8 @@ class TourObject(models.Model):
         verbose_name=_('Altitude')
     )
     description = models.TextField(blank=True, verbose_name=_('Description'))
-    place = models.ManyToManyField(Place, verbose_name=_('Place'))
+    # ???? как увязать гору в место, район и тд. сейчас через маршрут
+    default_place = models.ManyToManyField(Place, verbose_name=_('Place by default'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -374,6 +393,7 @@ class Route(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
     status = models.CharField(
@@ -387,8 +407,22 @@ class Route(models.Model):
         blank=True, null=True,
         verbose_name=_('Tour Object')
     )
+    activity = models.ManyToManyField(Activity, verbose_name=_('Activity'))
     place = models.ManyToManyField(Place, verbose_name=_('Place'))
-    description = models.TextField(blank=True, verbose_name=_('Description'))
+    refuge = models.ManyToManyField(Refuge, blank=True, verbose_name=_('Refuge'))
+    equipment_list = models.ManyToManyField(Equipment, blank=True, verbose_name=_('Equipment'))
+    difficulty_level = models.ForeignKey(
+        DifficultyLevel,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Difficulty Level')
+    )
+    physical_level = models.ForeignKey(
+        PhysicalLevel,
+        on_delete=models.SET_NULL,
+        null=True, blank=True, verbose_name=_('Physical Level')
+    )
+    client_guide_ratio = models.IntegerField(default=1, verbose_name=_('Guide-Client ratio'))
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = models.Manager()
@@ -493,6 +527,8 @@ class Day(models.Model):
     )
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 
@@ -510,6 +546,8 @@ class Day(models.Model):
 class Participant(models.Model):
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     calendar_event = models.ForeignKey('Calendar', on_delete=models.CASCADE, default=1, verbose_name=_('Calendar'))
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -543,12 +581,17 @@ class Calendar(models.Model):
         help_text=_('Date through'),
         verbose_name=_('Date through')
     )
+    note = models.CharField(max_length=50, blank=True, null=True, verbose_name=_('Notice'))
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
         default='active'
     )
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    objects = models.Manager()
+    active = ActiveManager()
+    disabled = DisabledManager()
 
     def __str__(self):
         period = str(self.start_date)+' - '+str(self.end_date)
@@ -558,7 +601,9 @@ class Calendar(models.Model):
 
     def get_availability(self):
         guide_cnt = self.tour.guide.count()
-        return guide_cnt*self.tour.client_guide_ratio-Participant.objects.filter(calendar_event__exact=self.pk).count()
+        return guide_cnt*self.tour.get_guide_client_ratio()-Participant.objects.filter(
+            calendar_event__exact=self.pk
+        ).count()
 
     class Meta:
         ordering = (
@@ -581,6 +626,8 @@ class PriceOption(models.Model):
         choices=LIST_TYPE_CHOICES,
         default='excludes'
     )
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -611,6 +658,8 @@ class TourEvent(models.Model):
     )
     event_index = models.IntegerField(default=0, verbose_name=_('Event Index'))
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.tour.name+' '+self.tour_object.name+' '+self.route.name
 
@@ -630,11 +679,6 @@ class Tour(models.Model):
         ('disabled', _('Disabled')),
         ('active', _('Active')),
     )
-    activity = models.ManyToManyField(Activity, verbose_name=_('Activity'))
-    continent = models.ManyToManyField(Continent, blank=True, verbose_name=_('Continent'))
-    country = models.ManyToManyField(Country, blank=True, verbose_name=_('Country'))
-    region = models.ManyToManyField(Region, blank=True, verbose_name=_('Region'))
-    place = models.ManyToManyField(Place, verbose_name=_('Place'))
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     slug = models.SlugField(max_length=250,
                             unique_for_date='date_created')
@@ -643,32 +687,18 @@ class Tour(models.Model):
         choices=STATUS_CHOICES,
         default='active'
     )
-    description = models.TextField(blank=True, verbose_name=_('Description'))
-    danger_caution = models.TextField(blank=True, verbose_name=_('Danger caution'))
-    typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))
-    medical_insurance = models.TextField(blank=True, verbose_name=_('Insurance'))
-    responsability = models.TextField(blank=True, verbose_name=_('Resposability'))
-    refuge = models.ManyToManyField(Refuge, blank=True, verbose_name=_('Refuge'))
-    accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))
-    food = models.TextField(blank=True, verbose_name=_('Food'))
-    add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))
-    rental = models.TextField(blank=True, verbose_name=_('Rental'))
-    transport = models.TextField(blank=True, verbose_name=_('Transport'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))  # change to text-block-model
+    danger_caution = models.TextField(blank=True, verbose_name=_('Danger caution'))  # change to LegalTextObject
+    typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))  # change to text-block-model
+    medical_insurance = models.TextField(blank=True, verbose_name=_('Insurance'))  # change to LegalTextObject
+    responsability = models.TextField(blank=True, verbose_name=_('Resposability'))  # change to LegalTextObject
+    accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))  # change to text-block-model
+    food = models.TextField(blank=True, verbose_name=_('Food'))  # change to text-block-model
+    add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))  # change to text-block-model
+    rental = models.TextField(blank=True, verbose_name=_('Rental'))  # change to text-block-model
+    transport = models.TextField(blank=True, verbose_name=_('Transport'))  # change to text-block-model
     guide = models.ManyToManyField(GuideProfile, blank=True, verbose_name=_('Guide Profile'))
-    equipment_list = models.ManyToManyField(Equipment, blank=True, verbose_name=_('Equipment'))
     travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
-    difficulty_level = models.ForeignKey(
-        DifficultyLevel,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        verbose_name=_('Difficulty Level')
-    )
-    physical_level = models.ForeignKey(
-        PhysicalLevel,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,verbose_name=_('Physical Level')
-    )
-    client_guide_ratio = models.IntegerField(default=1, verbose_name=_('Guide-Client ratio'))
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Price'))
     show_price = models.BooleanField(verbose_name=_('Show price'), default=True)
     allow_booking = models.BooleanField(verbose_name=_('Allow booking'), default=True)
@@ -692,6 +722,84 @@ class Tour(models.Model):
 
     def get_days_count(self):
         return Day.objects.filter(tour__pk=self.pk).count()
+
+    def get_activities(self):
+        return Activity.active.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self)
+            )
+        ).distinct()
+
+    def get_refuges(self):
+        return Refuge.active.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self)
+            )
+        ).distinct()
+
+    def get_places(self):
+        return Place.active.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self)
+            )
+        ).distinct()
+
+    def get_regions(self):
+        return Region.active.filter(
+            place__in=Place.active.filter(
+                route__in=Route.active.filter(
+                    tourevent__in=TourEvent.objects.filter(tour__exact=self)
+                )
+            )
+        ).distinct()
+
+    def get_countries(self):
+        return Country.active.filter(
+            region__in=Region.active.filter(
+                place__in=Place.active.filter(
+                    route__in=Route.active.filter(
+                        tourevent__in=TourEvent.objects.filter(tour__exact=self)
+                    )
+                )
+            )
+        ).distinct()
+
+    def get_continents(self):
+        return Continent.active.filter(
+            country__in=Country.active.filter(
+                region__in=Region.active.filter(
+                    place__in=Place.active.filter(
+                        route__in=Route.active.filter(
+                            tourevent__in=TourEvent.objects.filter(tour__exact=self)
+                        )
+                    )
+                )
+            )
+        ).distinct()
+
+    def get_difficulty_level(self):
+        max_index = DifficultyLevel.objects.filter(
+            route__in=Route.active.filter(tourevent__in=TourEvent.objects.filter(tour__exact=self))
+        ).aggregate(Max('level_index'))['level_index__max']
+        return DifficultyLevel.objects.filter(level_index__exact=max_index).first()
+
+    def get_physical_level(self):
+        max_index = PhysicalLevel.objects.filter(
+            route__in=Route.active.filter(tourevent__in=TourEvent.objects.filter(tour__exact=self))
+        ).aggregate(Max('level_index'))['level_index__max']
+        return PhysicalLevel.objects.filter(level_index__exact=max_index).first()
+
+    def get_guide_client_ratio(self):
+        return Route.active.filter(
+            tourevent__in=TourEvent.objects.filter(tour__exact=self)
+        ).aggregate(Min('client_guide_ratio'))['client_guide_ratio__min']
+
+    def get_equipment_list(self):
+        return Equipment.objects.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self)
+            )
+        ).distinct()
 
     class Meta:
         ordering = (

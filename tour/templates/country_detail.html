@@ -2,8 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "country" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">{{ object.description }}</div>
     <div class="detail-item">[<a href="{{ object.continent.get_absolute_url }}">{{ object.continent }}</a>]</div>
     <div class="detail-item">[<a href="/country/{{ object.slug }}/activities/">{{ object.name }} {% translate "activities" %}</a>]</div>

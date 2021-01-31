@@ -2,10 +2,10 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "tour-object" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">{% translate "alt" %}. {{ object.altitude }} {% translate "m" %}</div>
     <div class="detail-item">{{ object.description }}</div>
+    {% comment %}
     <div class="detail-item">
         {% for plc in object.place.all %}
             [<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]-[<a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>]-[<a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>]-[<a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>]
@@ -13,8 +13,10 @@
             [{% translate "empty list" %}]
         {% endfor %}
     </div>
+    {% endcomment %}
     <div class="detail-item">[<a href="/tour-object/{{ object.slug }}/routes/">{% translate "Routes" %}</a>]</div>
     <div class="detail-item">[<a href="/tour-object/{{ object.slug }}/places/">{% translate "Places" %}</a>]</div>
+    <div class="detail-item">[<a href="/tour-object/{{ object.slug }}/refuges/">{% translate "Refuges" %}</a>]</div>
     <div class="detail-item">[<a href="/tour-object/{{ object.slug }}/tours/">{% translate "Tours" %}</a>]</div>
     <div class="detail-item">[<a href="/tour-object/{{ object.slug }}/guides/">{% translate "Guides" %}</a>]</div>
     <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>

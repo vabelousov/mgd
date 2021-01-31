@@ -1,6 +1,4 @@
 from django.urls import path
-# from django_filters.views import FilterView
-# from .filters import TourFilter
 
 from . import views
 

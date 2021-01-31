@@ -52,6 +52,12 @@ class RefugeAdmin(admin.ModelAdmin):
     list_display = ('name', 'altitude', 'description')
     list_filter = ('name',)
     search_fields = ('name',)
+    filter_horizontal = ('default_place',)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "place":
+            kwargs["queryset"] = Place.objects.filter(status='active')
+        return super(RefugeAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
 @admin.register(Equipment)
@@ -131,7 +137,7 @@ class TourObjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'pk', 'altitude', 'status', 'date_created')
     list_filter = ('status',)
     search_fields = ('name', 'description')
-    filter_horizontal = ('place',)
+    filter_horizontal = ('default_place',)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "place":
@@ -141,12 +147,19 @@ class TourObjectAdmin(admin.ModelAdmin):
 
 @admin.register(Route)
 class RouteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'pk', 'tour_object', 'status', 'date_created')
+    list_display = ('name', 'pk', 'get_activities', 'tour_object', 'status', 'date_created')
     list_filter = ('status', 'tour_object')
     search_fields = ('name', 'description')
-    filter_horizontal = ('place',)
+    filter_horizontal = ('place', 'activity', 'refuge', 'equipment_list', )
+
+    def get_activities(self, obj):
+        return "\n".join([act.name for act in obj.activity.all()])
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "activity":
+            kwargs["queryset"] = Activity.objects.filter(status='active')
+        if db_field.name == "refuge":
+            kwargs["queryset"] = Refuge.objects.filter(status='active')
         if db_field.name == "place":
             kwargs["queryset"] = Place.objects.filter(status='active')
         return super(RouteAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
@@ -158,17 +171,14 @@ class TourAdmin(admin.ModelAdmin):
     list_display = ('name', 'pk', 'get_activities', 'status', 'date_created')
     list_filter = ('status',)
     search_fields = ('name',)
-    filter_horizontal = ('activity', 'continent', 'country',
-                         'region', 'place', 'guide', 'equipment_list', 'travel_documents', 'refuge')
+    filter_horizontal = ('guide', 'travel_documents',)
 
     def get_activities(self, obj):
-        return "\n".join([act.name for act in obj.activity.all()])
+        return "\n".join([act.name for act in obj.get_activities().all()])
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "activity":
-            kwargs["queryset"] = Activity.objects.filter(status='active')
-        if db_field.name == "place":
-            kwargs["queryset"] = Place.objects.filter(status='active')
+        if db_field.name == "guide":
+            kwargs["queryset"] = GuideProfile.objects.filter(status='active')
         return super(TourAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 

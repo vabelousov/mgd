@@ -2,9 +2,9 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "activity" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">{{ object.description }}</div>
+    <div class="detail-item">[<a href="/activity/{{ object.slug }}/refuges/">{{ object.name }} {% translate "refuges" %}</a>]</div>
     <div class="detail-item">[<a href="/activity/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]</div>
     <div class="detail-item">[<a href="/activity/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]</div>
     <div class="detail-item">[<a href="/activity/{{ object.slug }}/continents/">{{ object.name }} {% translate "continents" %}</a>]</div>

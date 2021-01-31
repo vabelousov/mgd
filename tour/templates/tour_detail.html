@@ -2,10 +2,9 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "tour" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">
-        {% for act in object.activity.all %}[<a href="{{ act.get_absolute_url }}">{{ act }}</a>]{% endfor %}
+        {% for act in object.get_activities %}[<a href="{{ act.get_absolute_url }}">{{ act }}</a>]{% endfor %}
     </div>
     {% if object.tourevent_set %}
     <div class="detail-item">
@@ -19,21 +18,19 @@
     </div>
     {% endif %}
     <div class="detail-item">
-        {% for plc in object.place.all %}[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]{% endfor %}
+        {% for rfg in object.get_refuges %}[<a href="{{ rfg.get_absolute_url }}">{{ rfg }}</a>]{% endfor %}
     </div>
     <div class="detail-item">
-        {% for rfg in object.refuge.all %}[<a href="{{ rfg.get_absolute_url }}">{{ rfg }}</a>]{% endfor %}
+        {% for plc in object.get_places %}[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]{% endfor %}
     </div>
     <div class="detail-item">
-        {% for plc in object.place.all %}[<a href="/region/{{ plc.region.slug }}/">{{ plc.region }}</a>]{% endfor %}
+        {% for rg in object.get_regions %}[<a href="/region/{{ rg.slug }}/">{{ rg }}</a>]{% endfor %}
     </div>
     <div class="detail-item">
-        {% for plc in object.place.all %}[<a href="/country/{{ plc.region.country.slug }}/">{{ plc.region.country }}</a>]{% endfor %}
+        {% for ctr in object.get_countries %}[<a href="/country/{{ ctr.slug }}/">{{ ctr }}</a>]{% endfor %}
     </div>
     <div class="detail-item">
-        {% for plc in object.place.all %}
-            {% ifchanged %}[<a href="/continent/{{ plc.region.country.continent.slug }}/">{{ plc.region.country.continent }}</a>]{% endifchanged %}
-        {% endfor %}
+        {% for cnt in object.get_continents %}[<a href="/continent/{{ cnt.slug }}/">{{ cnt }}</a>]{% endfor %}
     </div>
     <div class="detail-item">
         {% for gd in object.guide.all %}[<a href="{{ gd.get_absolute_url }}">{{ gd }}</a>]{% endfor %}
@@ -79,7 +76,7 @@
     <div class="detail-item">{% translate "Additional info" %}: {{ object.add_info }}</div>
     {% endif %}
     <div class="detail-item">
-        {% for eq in object.equipment_list.all %}
+        {% for eq in object.get_equipment_list %}
         {% if forloop.first %}{% translate "Equipment" %}:{% endif %}
         <div class="detail-item-list">[{{ eq }}]</div>
         {% endfor %}
@@ -90,20 +87,24 @@
         <div class="detail-item-list">[{{ doc }}]</div>
         {% endfor %}
     </div>
-    {% if object.physical_level %}
-    <div class="detail-item">{% translate "Physical Level" %}:  {{ object.physical_level }}</div>
+    {% if object.get_physical_level %}
+    <div class="detail-item">{% translate "Physical Level" %}:  {{ object.get_physical_level }}</div>
     {% endif %}
-    {% if object.difficulty_level %}
-    <div class="detail-item">{% translate "Difficulty Level" %}:  {{ object.difficulty_level }}</div>
+    {% if object.get_difficulty_level %}
+    <div class="detail-item">{% translate "Difficulty Level" %}:  {{ object.get_difficulty_level }}</div>
     {% endif %}
-    {% if object.client_guide_ratio %}
-    <div class="detail-item">{% translate "Guide-Client ratio" %}: {{ object.client_guide_ratio }}</div>
+    {% if object.get_guide_client_ratio %}
+    <div class="detail-item">{% translate "Guide-Client ratio" %}: {{ object.get_guide_client_ratio }}</div>
     {% endif %}
     <div class="detail-item">
         {% for event_dates in object.calendar_set.all %}
         {% if forloop.first %}{% translate "Dates & Availability" %}:{% endif %}
         <div class="detail-item-list">
-            [{{ event_dates.start_date }} - {{ event_dates.end_date }} (av. {{ event_dates.get_availability }})]
+            [
+            {% if event_dates.start_date and event_dates.end_date %}{{ event_dates.start_date }} - {{ event_dates.end_date }}
+            {% else %}{{ event_dates.note }}
+            {% endif %}
+            (av. {{ event_dates.get_availability }})]
             {% if event_dates.get_availability > 0 and object.allow_booking %}
                 <a href="/participate/{{ event_dates.pk }}/">{% translate "Book" %}</a>
             {% endif %}

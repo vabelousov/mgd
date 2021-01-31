@@ -2,8 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "route" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">{{ object.description }}</div>
     <div class="detail-item">[<a href="{{ object.tour_object.get_absolute_url }}">{{ object.tour_object }}</a>]</div>
     <div class="detail-item">
@@ -13,6 +12,8 @@
             [{% translate "empty list" %}]
         {% endfor %}
     </div>
+    <div class="detail-item">[<a href="/route/{{ object.slug }}/tours/">{% translate "Tours" %}</a>]</div>
+    <div class="detail-item">[<a href="/route/{{ object.slug }}/guides/">{% translate "Guides" %}</a>]</div>
     <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
 </div>
 {% endblock %}

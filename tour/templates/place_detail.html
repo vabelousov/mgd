@@ -2,8 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="detail-body">
-    <div class="detail-title">[-{% translate "place" %}-][pk={{ object.pk }}]</div>
-    <div class="detail-item">{{ object.name }}</div>
+    <div class="detail-title">{{ object.name }}</div>
     <div class="detail-item">{{ object.description }}</div>
     <div class="detail-item">[<a href="{{ object.region.country.continent.get_absolute_url }}">{{ object.region.country.continent }}</a>]</div>
     <div class="detail-item">[<a href="{{ object.region.country.get_absolute_url }}">{{ object.region.country }}</a>]</div>
@@ -12,6 +11,7 @@
     <div class="detail-item">[<a href="/place/{{ object.slug }}/guides/">{{ object.name }} {% translate "guides" %}</a>]</div>
     <div class="detail-item">[<a href="/place/{{ object.slug }}/tour-objects/">{{ object.name }} {% translate "tour-objects" %}</a>]</div>
     <div class="detail-item">[<a href="/place/{{ object.slug }}/routes/">{{ object.name }} {% translate "routes" %}</a>]</div>
+    <div class="detail-item">[<a href="/place/{{ object.slug }}/refuges/">{{ object.name }} {% translate "refuges" %}</a>]</div>
     <div class="detail-item">[<a href="/place/{{ object.slug }}/tours/">{{ object.name }} {% translate "tours" %}</a>]</div>
     <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
 </div>
