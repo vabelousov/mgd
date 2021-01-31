@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Activity, Continent, Country, Tour, \
     Region, Place, TourObject, Route, Refuge, \
     GuideProfile, Currency, Day, Equipment, TravelDocument,\
-    PhysicalLevel, DifficultyLevel, Participant, Calendar, PriceOption, TourEvent
+    PhysicalLevel, DifficultyLevel, Participant, Calendar, PriceOption, TourEvent, LegalObject
 
 
 class TourEventInline(admin.TabularInline):
@@ -58,6 +58,13 @@ class RefugeAdmin(admin.ModelAdmin):
         if db_field.name == "place":
             kwargs["queryset"] = Place.objects.filter(status='active')
         return super(RefugeAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
+
+@admin.register(LegalObject)
+class LegalObjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'legal_type')
+    list_filter = ('name', 'legal_type',)
+    search_fields = ('name',)
 
 
 @admin.register(Equipment)
@@ -175,6 +182,15 @@ class TourAdmin(admin.ModelAdmin):
 
     def get_activities(self, obj):
         return "\n".join([act.name for act in obj.get_activities().all()])
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "danger":
+            kwargs["queryset"] = LegalObject.objects.filter(legal_type='danger')
+        if db_field.name == "insurance":
+            kwargs["queryset"] = LegalObject.objects.filter(legal_type='insurance')
+        if db_field.name == "safety":
+            kwargs["queryset"] = LegalObject.objects.filter(legal_type='safety')
+        return super(TourAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "guide":

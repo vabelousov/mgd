@@ -24,6 +24,29 @@ class Vocabulary(models.Model):
         return self.name
 
 
+class LegalObject(Vocabulary):
+    LEGAL_CHOICES = (
+        ('danger', _('Dangers')),
+        ('safety', _('Safety')),
+        ('insurance', _('Insurance'))
+    )
+    vocabulary_type = 'legal'
+    legal_type = models.CharField(
+        max_length=10,
+        choices=LEGAL_CHOICES,
+        default='danger'
+    )
+    objects = models.Manager()
+
+    class Meta:
+        ordering = (
+            'legal_type',
+            'name',
+        )
+        verbose_name = _('Legal Object')
+        verbose_name_plural = _('Legal Objects')
+
+
 class Equipment(Vocabulary):
     EQUIP_CHOICES = (
         ('closes', _('Closes')),
@@ -688,17 +711,35 @@ class Tour(models.Model):
         default='active'
     )
     description = models.TextField(blank=True, verbose_name=_('Description'))  # change to text-block-model
-    danger_caution = models.TextField(blank=True, verbose_name=_('Danger caution'))  # change to LegalTextObject
+    guide = models.ManyToManyField(GuideProfile, blank=True, verbose_name=_('Guide Profile'))
+    danger = models.ForeignKey(
+        LegalObject,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Danger Caution'),
+        related_name='danger'
+    )
+    insurance = models.ForeignKey(
+        LegalObject,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Medical Insurance'),
+        related_name='insurance'
+    )
+    safety = models.ForeignKey(
+        LegalObject,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name=_('Safety'),
+        related_name='safety'
+    )
+    travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
     typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))  # change to text-block-model
-    medical_insurance = models.TextField(blank=True, verbose_name=_('Insurance'))  # change to LegalTextObject
-    responsability = models.TextField(blank=True, verbose_name=_('Resposability'))  # change to LegalTextObject
     accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))  # change to text-block-model
     food = models.TextField(blank=True, verbose_name=_('Food'))  # change to text-block-model
     add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))  # change to text-block-model
     rental = models.TextField(blank=True, verbose_name=_('Rental'))  # change to text-block-model
     transport = models.TextField(blank=True, verbose_name=_('Transport'))  # change to text-block-model
-    guide = models.ManyToManyField(GuideProfile, blank=True, verbose_name=_('Guide Profile'))
-    travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Price'))
     show_price = models.BooleanField(verbose_name=_('Show price'), default=True)
     allow_booking = models.BooleanField(verbose_name=_('Allow booking'), default=True)

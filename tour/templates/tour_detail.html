@@ -54,17 +54,17 @@
         {% endfor %}
     </div>
     {% endif %}
-    {% if object.danger_caution %}
-    <div class="detail-item">{% translate "Danger caution" %}:  {{ object.danger_caution }}</div>
+    {% if object.danger %}
+    <div class="detail-item">{{ object.danger }}:  {{ object.danger.description }}</div>
     {% endif %}
     {% if object.typical_weather %}
     <div class="detail-item">{% translate "Weather" %}: {{ object.typical_weather }}</div>
     {% endif %}
-    {% if object.medical_insurance %}
-    <div class="detail-item">{% translate "Insurance" %}: {{ object.medical_insurance }}</div>
+    {% if object.insurance %}
+    <div class="detail-item">{{ object.insurance.name }}: {{ object.insurance.description }}</div>
     {% endif %}
-    {% if object.responsability %}
-    <div class="detail-item">{% translate "Responsability" %}: {{ object.responsability }}</div>
+    {% if object.safety %}
+    <div class="detail-item">{{ object.safety.name }}: {{ object.safety.description }}</div>
     {% endif %}
     {% if object.accomodation %}
     <div class="detail-item">{% translate "Accomodation" %}: {{ object.accomodation }}</div>
