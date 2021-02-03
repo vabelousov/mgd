@@ -145,3 +145,8 @@ class CalendarFilter(django_filters.FilterSet):
             Q(tour__guide__name__icontains=value) | Q(tour__tourevent__route__refuge__name__icontains=value) |
             Q(tour__tourevent__tour_object__name__icontains=value) | Q(tour__tourevent__route__name__icontains=value)
         ).distinct()
+
+    def __init__(self, data, *args, **kwargs):
+        data = data.copy()
+        data.setdefault('o', '-start_date')
+        super().__init__(data, *args, **kwargs)

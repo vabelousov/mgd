@@ -1,5 +1,7 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
+{% load mgd_tags %}
+
 {% block content %}
 <div class="main-body" id="slide-in-2">
     <div class="tour-list">
@@ -26,7 +28,7 @@
                 <a href="#" onclick="SortBy('-price')"><i class="arrow down"></i></a>
             </div>
         </div>
-        {% for calendar_event in filter.qs %}
+        {% for calendar_event in tour_list %}
         <div class="tour-item">
             <div class="tour-item-cell flex-10">
                 {% if calendar_event.start_date %}
@@ -54,6 +56,27 @@
         </div>
         {% endfor %}
     </div>
+
+    {% if is_paginated %}
+      {% if page_obj.has_previous %}
+        <a href="?{% param_replace page=1 %}">First</a>
+        {% if page_obj.previous_page_number != 1 %}
+          <a href="?{% param_replace page=page_obj.previous_page_number %}">Previous</a>
+        {% endif %}
+      {% endif %}
+
+      Page {{ page_obj.number }} of {{ paginator.num_pages }}
+
+      {% if page_obj.has_next %}
+        {% if page_obj.next_page_number != paginator.num_pages %}
+          <a href="?{% param_replace page=page_obj.next_page_number %}">Next</a>
+        {% endif %}
+        <a href="?{% param_replace page=paginator.num_pages %}">Last</a>
+      {% endif %}
+
+      <p>Objects {{ page_obj.start_index }}—{{ page_obj.end_index }}</p>
+    {% endif %}
+
 </div>
 <div class="slide-panel" id="toggle">
     <i class="arrow right"></i>
@@ -62,32 +85,32 @@
     <div class="filter">
         <form method="get" action="." id="id-filter-form">
             <div class="form-row">
-                 <select name="o" id="id_o" hidden>
-                    {% for choice in filter.form.o %}
+                 <select name="o" id="id_o">
+                    {% for choice in filterset.form.o %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
             </div>
             <div class="form-row">
-                {{ filter.form.search.label_tag }}
-                {{ filter.form.search }}
+                {{ filterset.form.search.label_tag }}
+                {{ filterset.form.search }}
             </div>
             <div class="form-row">
                 <label for="id_start_date">Даты: </label>
-                {{ filter.form.start_date }}
-                {{ filter.form.end_date }}
+                {{ filterset.form.start_date }}
+                {{ filterset.form.end_date }}
             </div>
             <div class="form-row">
                 <label for="id_tour__price__gt">Цена: </label>
-                {{ filter.form.tour__price__gt }}
-                {{ filter.form.tour__price__lt }}
+                {{ filterset.form.tour__price__gt }}
+                {{ filterset.form.tour__price__lt }}
             </div>
             <div class="form-row">
                 <label class="label-click" for="id_tour__tourevent__route__difficulty_level">Уровень сложности <i class="arrow down"></i></label>
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__difficulty_level" id="id_tour__tourevent__route__difficulty_level" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__difficulty_level %}
+                    {% for choice in filterset.form.tour__tourevent__route__difficulty_level %}
                     {{ choice.tag }}{{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -97,7 +120,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__physical_level" id="id_tour__tourevent__route__physical_level" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__physical_level %}
+                    {% for choice in filterset.form.tour__tourevent__route__physical_level %}
                     {{ choice.tag }}{{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -107,7 +130,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__guide" id="id_tour__guide" multiple size="5">
-                    {% for choice in filter.form.tour__guide %}
+                    {% for choice in filterset.form.tour__guide %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -117,7 +140,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__activity" id="id_tour__tourevent__route__activity" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__activity %}
+                    {% for choice in filterset.form.tour__tourevent__route__activity %}
                     {{ choice.tag }}{{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -127,7 +150,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__place__region__country__continent" id="id_tour__tourevent__route__place__region__country__continent" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__place__region__country__continent %}
+                    {% for choice in filterset.form.tour__tourevent__route__place__region__country__continent %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -137,7 +160,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__place__region__country" id="id_tour__tourevent__route__place__region__country" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__place__region__country %}
+                    {% for choice in filterset.form.tour__tourevent__route__place__region__country %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -147,7 +170,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__place__region" id="id_tour__tourevent__route__place__region" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__place__region %}
+                    {% for choice in filterset.form.tour__tourevent__route__place__region %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -157,7 +180,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__place" id="id_tour__tourevent__route__place" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__place %}
+                    {% for choice in filterset.form.tour__tourevent__route__place %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -167,7 +190,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__tour_object" id="id_tour__tourevent__tour_object" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__tour_object %}
+                    {% for choice in filterset.form.tour__tourevent__tour_object %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -177,7 +200,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route" id="id_tour__tourevent__route" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route %}
+                    {% for choice in filterset.form.tour__tourevent__route %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>
@@ -187,7 +210,7 @@
             </div>
             <div class="form-row row-slide">
                  <select name="tour__tourevent__route__refuge" id="id_tour__tourevent__route__refuge" multiple size="5">
-                    {% for choice in filter.form.tour__tourevent__route__refuge %}
+                    {% for choice in filterset.form.tour__tourevent__route__refuge %}
                     {{ choice.tag }} {{ choice.choice_label }}
                     {% endfor %}
                  </select>

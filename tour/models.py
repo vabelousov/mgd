@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Max, Min
 from django.urls import reverse
+import itertools
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 
@@ -114,13 +116,27 @@ class DifficultyLevel(Vocabulary):
 
 class Currency(models.Model):
     code = models.CharField(max_length=4, verbose_name=_('Code'))
-    slug = models.SlugField(max_length=4)
+    slug = models.SlugField(max_length=4, default='', editable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
     objects = models.Manager()
 
     def __str__(self):
         return self.code
+
+    def _generate_slug(self):
+        value = self.code
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = (
@@ -136,8 +152,7 @@ class Activity(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -152,6 +167,20 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:activity-detail', kwargs={'slug': self.slug})
@@ -170,8 +199,7 @@ class Continent(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -186,6 +214,20 @@ class Continent(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:continent-detail', kwargs={'slug': self.slug})
@@ -204,8 +246,7 @@ class Country(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     continent = models.ForeignKey(Continent, on_delete=models.SET_NULL, null=True, verbose_name=_('Continent'))
     status = models.CharField(
         max_length=10,
@@ -221,6 +262,20 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:country-detail', kwargs={'slug': self.slug})
@@ -240,8 +295,7 @@ class Region(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, verbose_name=_('Country'))
     status = models.CharField(
         max_length=10,
@@ -257,6 +311,20 @@ class Region(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:region-detail', kwargs={'slug': self.slug})
@@ -275,8 +343,7 @@ class Place(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, verbose_name=_('Region'))
     status = models.CharField(
         max_length=10,
@@ -299,6 +366,20 @@ class Place(models.Model):
     def __str__(self):
         return self.name
 
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('tour:place-detail', kwargs={'slug': self.slug})
 
@@ -316,8 +397,7 @@ class Refuge(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     #  ??? как увязать приют в место, район и тд. сейчас через маршрут
     default_place = models.ManyToManyField(Place, verbose_name=_('Place by default'))
     status = models.CharField(
@@ -344,6 +424,20 @@ class Refuge(models.Model):
     def __str__(self):
         return self.name
 
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('tour:refuge-detail', kwargs={'slug': self.slug})
 
@@ -368,8 +462,7 @@ class TourObject(models.Model):
         ('slope', _('Slope')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -399,6 +492,20 @@ class TourObject(models.Model):
     def __str__(self):
         return self.name
 
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('tour:tour-object-detail', kwargs={'slug': self.slug})
 
@@ -417,8 +524,7 @@ class Route(models.Model):
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     description = models.TextField(blank=True, verbose_name=_('Description'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -454,6 +560,20 @@ class Route(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:route-detail', kwargs={'slug': self.slug})
@@ -494,8 +614,7 @@ class GuideProfile(models.Model):
         default='unqualified',
         verbose_name=_('Qualification')
     )
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -509,6 +628,20 @@ class GuideProfile(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:guide-profile', kwargs={'slug': self.slug})
@@ -548,6 +681,7 @@ class Day(models.Model):
         default=0,
         verbose_name=_('Descent time')
     )
+    day_index = models.IntegerField(default=0, verbose_name=_('Day Index'))
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
 
     objects = models.Manager()
@@ -560,7 +694,7 @@ class Day(models.Model):
 
     class Meta:
         ordering = (
-            'name',
+            'day_index',
         )
         verbose_name = _('Day')
         verbose_name_plural = _('Days')
@@ -586,9 +720,30 @@ class Participant(models.Model):
         verbose_name_plural = _('Participants')
 
 
+class PriceValue(models.Model):
+    group = models.IntegerField(default=1, verbose_name=_('group'))
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Price'))
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
+
+    objects = models.Manager()
+
+    # def __str__(self):
+    #     return self.pk
+
+    class Meta:
+        ordering = (
+            'tour',
+            'group'
+        )
+        verbose_name = _('Price value')
+        verbose_name_plural = _('Price values')
+
+
 class Calendar(models.Model):
     STATUS_CHOICES = (
         ('disabled', _('Disabled')),
+        ('canceled', _('Canceled')),
+        ('done', _('Done')),
         ('active', _('Active')),
     )
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
@@ -703,8 +858,7 @@ class Tour(models.Model):
         ('active', _('Active')),
     )
     name = models.CharField(max_length=250, verbose_name=_('Name'))
-    slug = models.SlugField(max_length=250,
-                            unique_for_date='date_created')
+    slug = models.SlugField(max_length=250, default='', editable=False, unique_for_date='date_created')
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -757,6 +911,20 @@ class Tour(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _generate_slug(self):
+        value = self.name
+        slug_candidate = slug_original = slugify(value, allow_unicode=True)
+        for i in itertools.count(1):
+            if not Currency.objects.filter(slug=slug_candidate).exists():
+                break
+            slug_candidate = '{}-{}'.format(slug_original, i)
+        self.slug = slug_candidate
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self._generate_slug()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('tour:tour-detail', kwargs={'slug': self.slug})

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Activity, Continent, Country, Tour, \
     Region, Place, TourObject, Route, Refuge, \
-    GuideProfile, Currency, Day, Equipment, TravelDocument,\
+    GuideProfile, Currency, Day, Equipment, TravelDocument, PriceValue,\
     PhysicalLevel, DifficultyLevel, Participant, Calendar, PriceOption, TourEvent, LegalObject
 
 
@@ -33,6 +33,13 @@ class DayInline(admin.TabularInline):
     classes = ['collapse']
 
 
+class PriceValueInline(admin.TabularInline):
+    model = PriceValue
+    extra = 0
+    max_num = 100
+    classes = ['collapse']
+
+
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
     list_display = ('name', 'calendar_event')
@@ -42,7 +49,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 @admin.register(Currency)
 class CurrencyAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name')
+    list_display = ('code', 'name', 'slug')
     list_filter = ('code', 'name',)
     search_fields = ('code', 'name')
 
@@ -174,7 +181,7 @@ class RouteAdmin(admin.ModelAdmin):
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    inlines = [DayInline, CalendarInline, PriceOptionInline, TourEventInline]
+    inlines = [DayInline, CalendarInline, PriceOptionInline, TourEventInline, PriceValueInline]
     list_display = ('name', 'pk', 'get_activities', 'status', 'date_created')
     list_filter = ('status',)
     search_fields = ('name',)
