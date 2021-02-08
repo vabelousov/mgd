@@ -1,0 +1,277 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% block content %}
+<div class="cart-body">
+    <div class="cart">
+        <div class="cart-type"><img src="/static/img/{{ type }}.svg" alt="{{ type }}" width="16px" height="16px"> {{ type }}</div>
+        <div class="cart-name"><h1>{{ object.name }}</h1></div>
+        {% if object.description %}
+            <div class="cart-description">{{ object.description }}</div>
+        {% endif %}
+        {% if object.qualification %}
+            <div class="cart-qualification">
+                <img src="/static/img/qualification.svg" alt="qualification" width="16px" height="16px">
+                {{ object.qualification }}
+            </div>
+        {% endif %}
+        {% if object.birth_date %}
+            <div class="cart-bd">
+                <img src="/static/img/birthday.svg" alt="birthday" width="16px" height="16px">
+                {{ object.birth_date }}
+            </div>
+        {% endif %}
+        {% if object.country and type == 'guide'%}
+            <div class="cart-bc">
+                <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                <a href="{{object.country.get_absolute_url}}">{{ object.country }}</a>
+            </div>
+        {% endif %}
+        {% if object.about_me %}
+            <div class="cart-description">{{ object.about_me }}</div>
+        {% endif %}
+        {% if object.altitude %}
+        <div class="cart-altitude">
+            <img src="/static/img/altitude.svg" alt="alt." width="16px" height="16px">
+            {{ object.altitude }}
+        </div>
+        {% endif %}
+        {% if object.web_link %}
+        <div class="cart-weblink">
+            <img src="/static/img/url.svg" alt="weblink" width="16px" height="16px"><a href="{{ object.web_link }}">Link</a>
+        </div>
+        {% endif %}
+        {% if object.tour_object and type == 'route' %}
+            <div class="cart-mountain">
+                <img src="/static/img/mountain.svg" alt="mountain" width="16px" height="16px">
+                <a href="{{ object.tour_object.get_absolute_url }}"> {{ object.tour_object }} ({{ object.tour_object.altitude }} m)</a>
+            </div>
+        {% endif %}
+        {% if type == 'country' %}
+            <div class="cart-continents">
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{object.continent.get_absolute_url}}">{{ object.continent }}</a>
+                </div>
+            </div>
+        {% endif %}
+        {% if type == 'region' %}
+            <div class="cart-continents">
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{object.country.continent.get_absolute_url}}">{{ object.country.continent }}</a>
+                    <div class="cart-countries">
+                        <div class="cart-country">
+                            <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                            <a href="{{object.country.get_absolute_url}}">{{ object.country }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if type == 'place' %}
+            <div class="cart-continents">
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{object.region.country.continent.get_absolute_url}}">{{ object.region.country.continent }}</a>
+                    <div class="cart-countries">
+                        <div class="cart-country">
+                            <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                            <a href="{{object.region.country.get_absolute_url}}">{{ object.region.country }}</a>
+                            <div class="cart-regions">
+                                <div class="cart-region">
+                                    <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+                                    <a href="{{object.region.get_absolute_url}}">{{ object.region }}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if type == 'tour-object' %}
+            <div class="cart-continents">
+            {% for rt in object.get_routes %}
+                {% for plc in rt.place.all %}
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>
+                    <div class="cart-countries">
+                        <div class="cart-country">
+                            <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                            <a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>
+                            <div class="cart-regions">
+                                <div class="cart-region">
+                                    <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+                                    <a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>
+                                    <div class="cart-places">
+                                        <div class="cart-place">
+                                            <img src="/static/img/place.svg" alt="place" width="16px" height="16px">
+                                            <a href="{{ plc.get_absolute_url }}">{{ plc }} ({{ plc.altitude }} m)</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% if type == 'route' %}
+            <div class="cart-continents">
+            {% for plc in object.place.all %}
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>
+                    <div class="cart-countries">
+                        <div class="cart-country">
+                            <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                            <a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>
+                            <div class="cart-regions">
+                                <div class="cart-region">
+                                    <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+                                    <a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>
+                                    <div class="cart-places">
+                                        <div class="cart-place">
+                                            <img src="/static/img/place.svg" alt="place" width="16px" height="16px">
+                                            <a href="{{ plc.get_absolute_url }}">{{ plc }} ({{ plc.altitude }} m)</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% if type == 'refuge' %}
+            <div class="cart-continents">
+            {% for plc in object.default_place.all %}
+                <div class="cart-continent">
+                    <img src="/static/img/continent.svg" alt="continent" width="16px" height="16px">
+                    <a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>
+                    <div class="cart-countries">
+                        <div class="cart-country">
+                            <img src="/static/img/country.svg" alt="country" width="16px" height="16px">
+                            <a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>
+                            <div class="cart-regions">
+                                <div class="cart-region">
+                                    <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+                                    <a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>
+                                    <div class="cart-places">
+                                        <div class="cart-place">
+                                            <img src="/static/img/place.svg" alt="place" width="16px" height="16px">
+                                            <a href="{{ plc.get_absolute_url }}">{{ plc }} ({{ plc.altitude }} m)</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if object.refuge and object.refuge.all %}
+        <div class="cart-refuges">
+            <img src="/static/img/refuge.svg" alt="refuge" width="16px" height="16px">
+            {% for r in object.refuge.all %}
+            <div class="cart-refuge"><a href="{{ r.get_absolute_url }}">{{ r }} ({{ r.altitude }} m)</a></div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="cart-links">
+            {% if type != 'activity' and type != 'tour-object' and type != 'route'%}
+                <div class="cart-links-item">
+                    <a href="/{{ type }}/{{ object.slug }}/activities/">
+                        <span>
+                            <img src="/static/img/activity.svg" alt="activities" width="16px" height="16px">
+                            {% translate "activities" %}
+                        </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'continent' and type != 'country' and type != 'region' and type != 'place' and type != 'refuge' and type != 'route' and type != 'tour-object'%}
+                <div class="cart-links-item">
+                    <a href="/{{ type }}/{{ object.slug }}/continents/">
+                        <span>
+                            <img src="/static/img/continent.svg" alt="continents" width="16px" height="16px">
+                            {% translate "continents" %}
+                        </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'country' and type != 'region' and type != 'place' and type != 'refuge' and type != 'route' and type != 'tour-object'%}
+                <div class="cart-links-item">
+                    <a href="/{{ type }}/{{ object.slug }}/countries/">
+                        <span>
+                            <img src="/static/img/country.svg" alt="countries" width="16px" height="16px">
+                            {% translate "countries" %}
+                        </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'region' and type != 'place' and type != 'refuge' and type != 'route' and type != 'tour-object'%}
+                <div class="cart-links-item">
+                    <a href="/{{ type }}/{{ object.slug }}/regions/">
+                        <span>
+                            <img src="/static/img/region.svg" alt="regions" width="16px" height="16px">
+                            {% translate "regions" %}
+                        </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'place' and type != 'refuge' and type != 'route' and type != 'tour-object'%}
+                <div class="cart-links-item">
+                    <a href="/{{ type }}/{{ object.slug }}/places/">
+                        <span>
+                            <img src="/static/img/place.svg" alt="places" width="16px" height="16px">
+                            {% translate "places" %}
+                        </span>
+                    </a>
+                </div>
+            {% endif %}
+            {% if type != 'tour-object' and type != 'route'%}
+                <div class="cart-links-item"><a href="/{{ type }}/{{ object.slug }}/tour-objects/">
+                    <span>
+                        <img src="/static/img/tour-object.svg" alt="tour-objects" width="16px" height="16px">
+                        {% translate "tour-objects" %}
+                    </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'route' %}
+                <div class="cart-links-item"><a href="/{{ type }}/{{ object.slug }}/routes/">
+                    <span>
+                        <img src="/static/img/route.svg" alt="routes" width="16px" height="16px">
+                        {% translate "routes" %}
+                    </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'refuge' and type != 'route'%}
+                <div class="cart-links-item"><a href="/{{ type }}/{{ object.slug }}/refuges/">
+                    <span>
+                        <img src="/static/img/refuge.svg" alt="refuges" width="16px" height="16px">
+                        {% translate "refuges" %}
+                    </span></a>
+                </div>
+            {% endif %}
+            {% if type != 'guide' %}
+                <div class="cart-links-item"><a href="/{{ type }}/{{ object.slug }}/guides/">
+                    <span>
+                        <img src="/static/img/guide.svg" alt="guides" width="16px" height="16px">
+                        {% translate "guides" %}
+                    </span></a>
+                </div>
+            {% endif %}
+            <div class="cart-links-item"><a href="/{{ type }}/{{ object.slug }}/tours/">
+                <span>
+                    <img src="/static/img/tour.svg" alt="tours" width="16px" height="16px">
+                    {% translate "tours" %}
+                </span></a>
+            </div>
+        </div>
+
+        <div class="cart-created">{% translate "Created" %}: {{ object.date_created }}</div>
+    </div>
+</div>
+{% endblock %}

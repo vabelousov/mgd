@@ -1,8 +1,76 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
+{% load mgd_filters %}
 {% block content %}
-<div class="page-title">[-{% translate "index" %}-]</div>
-<div class="index">
-    {% translate "web site: [mountain guide]" %}
+<div class="index-body">
+    <div class="index-list">
+        {% for obj in object_list %}
+        <div class="index-item slideshow fade">
+            <div class="index-item-cell-activity">
+                <img src="/static/img/activity.svg" alt="" width="16px" height="16px">
+                {% for ac in obj.tour.get_activities %}<a href="{{ ac.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ ac }}</a>{% endfor %}
+            </div>
+            <div class="index-item-cell-datefrom">
+                {% if obj.start_date %}
+                {{ obj.start_date }}
+                {% else %}
+                {{ obj.note }}
+                {% endif %}
+            </div>
+            <div class="index-item-cell-datethrou">
+                {% if obj.end_date %}
+                {{ obj.end_date }}
+                {% endif %}
+            </div>
+            <div class="index-item-cell-title"><h1><a href="{{ obj.tour.get_absolute_url }}">{{ obj.tour }}</a></h1></div>
+            <div class="index-item-cell-country">
+                <img src="/static/img/region.svg" alt="" width="16px" height="16px">
+                {% for p in obj.tour.get_places %} <a href="{{ p.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ p }}</a>{% endfor%}
+            </div>
+            <div class="index-item-cell-price"><img src="/static/img/cost.svg" alt="" width="16px" height="16px"> от {{ obj.tour.price }}</div>
+            <div class="index-item-cell-more"><a href="{{ obj.tour.get_absolute_url }}"><span>Подробнее...</span></a></div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="dot-container">
+        {% for i in object_list.count|add:1|times %}
+            <span class="dot"></span>
+        {% endfor %}
+    </div>
+    <div class="what-we-do">
+        <div class="what-we-do-block">
+            <div class="what-we-do-block-title"><h5>Чем мы занимаемся:</h5></div>
+            {% for act in activity_list %}
+                <div class="what-we-do-block-item"><a href="{{ act.get_absolute_url }}"><span>{{ act }}</span></a></div>
+            {% endfor %}
+        </div>
+        <div class="what-we-do-block">
+            <div class="what-we-do-block-title"><h5>Где мы это делаем:</h5></div>
+            {% for con in continent_list %}
+                <div class="what-we-do-block-item"><a href="{{ con.get_absolute_url }}"><span>{{ con }}</span></a></div>
+            {% endfor %}
+            {% for ctr in country_list %}
+                <div class="what-we-do-block-item"><a href="{{ ctr.get_absolute_url }}"><span>{{ ctr }}</span></a></div>
+            {% endfor %}
+            {% for rg in region_list %}
+                <div class="what-we-do-block-item"><a href="{{ rg.get_absolute_url }}"><span>{{ rg }}</span></a></div>
+            {% endfor %}
+            {% for plc in place_list %}
+                <div class="what-we-do-block-item"><a href="{{ plc.get_absolute_url }}"><span>{{ plc }}</span></a></div>
+            {% endfor %}
+        </div>
+        <div class="what-we-do-block">
+            <div class="what-we-do-block-title"><h5>Куда мы ходим:</h5></div>
+            {% for rt in route_list %}
+                <div class="what-we-do-block-item"><a href="{{ rt.get_absolute_url }}"><span>{{ rt }}</span></a></div>
+            {% endfor %}
+        </div>
+        <div class="what-we-do-block">
+            <div class="what-we-do-block-title"><h5>Где мы ночуем:</h5></div>
+            {% for rg in refuge_list %}
+                <div class="what-we-do-block-item"><a href="{{ rg.get_absolute_url }}"><span>{{ rg }}</span></a></div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

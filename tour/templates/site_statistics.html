@@ -1,17 +1,70 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 {% block content %}
-<div class="detail-title">[-{% translate "site statistics" %}-]</div>
-<div class="detail-body">
-    <div class="detail-item"><a href="/activities/">{% translate "activities" %}</a>: {{ activities }}</div>
-    <div class="detail-item"><a href="/continents/">{% translate "continents" %}</a>: {{ continents }}</div>
-    <div class="detail-item"><a href="/countries/">{% translate "countries" %}</a>: {{ countries }}</div>
-    <div class="detail-item"><a href="/regions/">{% translate "regions" %}</a>: {{ regions }}</div>
-    <div class="detail-item"><a href="/places/">{% translate "places" %}</a>: {{ places }}</div>
-    <div class="detail-item"><a href="/refuges/">{% translate "refuges" %}</a>: {{ refuges }}</div>
-    <div class="detail-item"><a href="/tour-objects/">{% translate "tour-objects" %}</a>: {{ tour_objects }}</div>
-    <div class="detail-item"><a href="/routes/">{% translate "routes" %}</a>: {{ routes }}</div>
-    <div class="detail-item"><a href="/guides/">{% translate "guides" %}</a>: {{ guides }}</div>
-    <div class="detail-item"><a href="/tours/">{% translate "tours" %}</a>: {{ tours }}</div>
+<div class="universal-body">
+    <div class="universal-list">
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/activities/">
+                    <h3><img src="/static/img/activity.svg" alt="activities" width="24px" height="24px"> {% translate "activities" %}</h3>
+                </a>
+            </div>
+            <div class="universal-list-item-count"><a href="/activities/">{{ activities }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/continents/"><h3><img src="/static/img/continent.svg" alt="continents" width="24px" height="24px"> {% translate "continents" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/continents/">{{ continents }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/countries/"><h3><img src="/static/img/country.svg" alt="countries" width="24px" height="24px"> {% translate "countries" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/countries/">{{ countries }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/regions/"><h3><img src="/static/img/region.svg" alt="regions" width="24px" height="24px"> {% translate "regions" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/regions/">{{ regions }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/places/"><h3><img src="/static/img/place.svg" alt="places" width="24px" height="24px"> {% translate "places" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/places/">{{ places }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/refuges/"><h3><img src="/static/img/refuge.svg" alt="refuges" width="24px" height="24px"> {% translate "refuges" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/refuges/">{{ refuges }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/tour-objects/"><h3><img src="/static/img/tour-object.svg" alt="tour-objects" width="24px" height="24px"> {% translate "tour-objects" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/tour-objects/">{{ tour_objects }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/routes/"><h3><img src="/static/img/route.svg" alt="routes" width="24px" height="24px"> {% translate "routes" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/routes/">{{ routes }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/guides/"><h3><img src="/static/img/guide.svg" alt="guides" width="24px" height="24px"> {% translate "guides" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/guides/">{{ guides }}</a></div>
+        </div>
+        <div class="universal-list-item">
+            <div class="universal-list-item-name">
+                <a href="/tours/"><h3><img src="/static/img/tour.svg" alt="tours" width="24px" height="24px"> {% translate "tours" %}</h3></a>
+            </div>
+            <div class="universal-list-item-count"><a href="/tours/">{{ tours }}</a></div>
+        </div>
+    </div>
 </div>
 {% endblock %}

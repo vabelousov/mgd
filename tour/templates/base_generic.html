@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     {% load i18n %}
     {% block title %}<title>{% translate "Mountain guide" %}</title>{% endblock %}
+
 </head>
 <body>
     <header class="header">
@@ -23,7 +24,7 @@
                 <li><a href="/"><div class="logo"></div></a></li>
                 <li><a href="/">Главная</a></li>
                 <li><a href="/tours/">Туры</a></li>
-                <li><a href="/site_statistics/">О нас</a></li>
+                <li><a href="/site_statistics/">База</a></li>
                 <li><a href="/admin/">{% translate "Admin" %}</a></li>
             </ul>
         </div>
@@ -50,8 +51,8 @@
                 <li><a href="/refuges/">{% translate "Refuges" %}</a></li>
                 <li><a href="/tour-objects/">{% translate "Tour Objects" %}</a></li>
                 <li><a href="/routes/">{% translate "Routes" %}</a></li>
-                <li><a href="/guides/">{% translate "Our Guides" %}</a></li>
-                <li><a href="/site_statistics/">{% translate "Site statistics" %}</a></li>
+                <li><a href="/guides/">{% translate "Guides" %}</a></li>
+                <li><a href="/site_statistics/">{% translate "Base" %}</a></li>
                 <li>
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
@@ -77,5 +78,43 @@
     </form>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.canvaswrapper.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.colorhelpers.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.flot.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.flot.saturated.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.flot.browser.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.flot.drawSeries.js' %}"></script>
+<script language="javascript" type="text/javascript" src="{% static 'js/flot/jquery.flot.uiConstants.js' %}"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+    var data = JSON.parse("{{data|escapejs}}");
+
+    my_data = [];
+    for(var x in data['altitude']){
+        my_data.push([data['days'][x], data['altitude'][x]]);
+    }
+    console.log(my_data);
+
+    var d1 = [];
+    for (var i = 0; i < 14; i += 0.5) {
+        d1.push([i, Math.sin(i)]);
+    }
+    //console.log(d1);
+    var d2 = [[0, 3], [4, 8], [8, 5], [9, 13]];
+
+    // A null signifies separate line segments
+
+    var d3 = [[0, 12], [7, 12], null, [7, 2.5], [12, 2.5]];
+
+    //$.plot("#placeholder", [ d1, d2, d3 ]);
+    $.plot("#placeholder", [ my_data ]);
+
+});
+
+</script>
+
 <script src="{% static 'js/script.js' %}"></script>
 </html>

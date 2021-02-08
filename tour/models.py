@@ -4,6 +4,8 @@ from django.urls import reverse
 import itertools
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 
 class ActiveManager(models.Manager):
@@ -509,6 +511,9 @@ class TourObject(models.Model):
     def get_absolute_url(self):
         return reverse('tour:tour-object-detail', kwargs={'slug': self.slug})
 
+    def get_routes(self):
+        return Route.active.filter(tour_object__exact=self)
+
     class Meta:
         ordering = (
             '-altitude',
@@ -657,29 +662,23 @@ class GuideProfile(models.Model):
 class Day(models.Model):
     name = models.CharField(max_length=250, verbose_name=_('Name'))
     interary = models.TextField(blank=True, verbose_name=_('Interary'))
-    ascent = models.DecimalField(
+    morning_altitude = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         default=0,
-        verbose_name=_('Ascent')
+        verbose_name=_('Morning Alti')
     )
-    descent = models.DecimalField(
+    day_altitude = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         default=0,
-        verbose_name=_('Descent')
+        verbose_name=_('Day Alti')
     )
-    ascent_time_minutes = models.DecimalField(
+    night_altitude = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         default=0,
-        verbose_name=_('Ascent time')
-    )
-    descent_time_minutes = models.DecimalField(
-        max_digits=5,
-        decimal_places=0,
-        default=0,
-        verbose_name=_('Descent time')
+        verbose_name=_('Night Alti')
     )
     day_index = models.IntegerField(default=0, verbose_name=_('Day Index'))
     tour = models.ForeignKey('Tour', on_delete=models.CASCADE, default=1, verbose_name=_('Tour'))
@@ -695,6 +694,7 @@ class Day(models.Model):
     class Meta:
         ordering = (
             'day_index',
+            'name'
         )
         verbose_name = _('Day')
         verbose_name_plural = _('Days')
@@ -727,8 +727,10 @@ class PriceValue(models.Model):
 
     objects = models.Manager()
 
-    # def __str__(self):
-    #     return self.pk
+    def save(self, *args, **kwargs):
+        if self.tour.price > self.price or self.tour.price == 0:
+            Tour.objects.update_or_create(id=self.tour.pk, defaults={"price": self.price})
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = (
@@ -785,8 +787,8 @@ class Calendar(models.Model):
 
     class Meta:
         ordering = (
+            'start_date',
             'tour',
-            '-start_date',
         )
         verbose_name = _('Calendar Event')
         verbose_name_plural = _('Calendar Events')
@@ -815,6 +817,7 @@ class PriceOption(models.Model):
 
     class Meta:
         ordering = (
+            '-list_type',
             'name',
         )
         verbose_name = _('Price option')
@@ -888,12 +891,16 @@ class Tour(models.Model):
         related_name='safety'
     )
     travel_documents = models.ManyToManyField(TravelDocument, blank=True, verbose_name=_('Documents'))
-    typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))  # change to text-block-model
-    accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))  # change to text-block-model
-    food = models.TextField(blank=True, verbose_name=_('Food'))  # change to text-block-model
-    add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))  # change to text-block-model
-    rental = models.TextField(blank=True, verbose_name=_('Rental'))  # change to text-block-model
-    transport = models.TextField(blank=True, verbose_name=_('Transport'))  # change to text-block-model
+    typical_weather = models.TextField(blank=True, verbose_name=_('Weather'))
+    season = models.CharField(max_length=250, blank=True, null=True, verbose_name=_('Season'))
+    accomodation = models.TextField(blank=True, verbose_name=_('Accomodation'))
+    food = models.TextField(blank=True, verbose_name=_('Food'))
+    add_info = models.TextField(blank=True, verbose_name=_('Add. Info'))
+    rental = models.TextField(blank=True, verbose_name=_('Rental'))
+    transport = models.TextField(blank=True, verbose_name=_('Transport'))
+    '''
+    price - обновляется из PriceValue автоматически, его не нужно вводить руками
+    '''
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name=_('Price'))
     show_price = models.BooleanField(verbose_name=_('Show price'), default=True)
     allow_booking = models.BooleanField(verbose_name=_('Allow booking'), default=True)
@@ -945,6 +952,25 @@ class Tour(models.Model):
                 tourevent__in=TourEvent.objects.filter(tour__exact=self)
             )
         ).distinct()
+
+    def get_main_tour_objects(self):
+        return TourObject.active.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self, event_type__exact='ascent')
+            )
+        ).distinct()
+
+    def get_secondary_tour_objects(self):
+        return TourObject.active.filter(
+            route__in=Route.active.filter(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self, event_type__exact='acclimatization')
+            )
+        ).distinct()
+
+    def get_tour_object_route(self, tour_object):
+        return Route.active.get(
+                tourevent__in=TourEvent.objects.filter(tour__exact=self, tour_object__exact=tour_object)
+            )
 
     def get_places(self):
         return Place.active.filter(
@@ -1010,9 +1036,35 @@ class Tour(models.Model):
             )
         ).distinct()
 
+    def get_alti_data_plot(self):
+        alti = []
+        for i, d in enumerate(self.day_set.all().order_by('day_index')):
+            if i == 0:
+                alti.append(float(d.morning_altitude))
+            alti.append(float(d.day_altitude))
+            alti.append(float(d.night_altitude))
+        return alti
+
+    def get_days_data_plot(self):
+        days = []
+        d_count = 0
+        for i, d in enumerate(self.day_set.all().order_by('day_index')):
+            if i == 0:
+                days.append(0)
+            days.append(d_count+0.5)
+            days.append(d_count+1)
+            d_count = d_count+1
+        return days
+
     class Meta:
         ordering = (
             '-date_created',
         )
         verbose_name = _('Tour')
         verbose_name_plural = _('Tours')
+
+
+@receiver(pre_delete, sender=PriceValue)
+def update_tour_price(sender, instance, **kwargs):
+    min_price = PriceValue.objects.filter(tour=instance.tour).exclude(pk=instance.pk).aggregate(Min('price'))['price__min']
+    Tour.objects.update_or_create(id=instance.tour.pk, defaults={"price": min_price})

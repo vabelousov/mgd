@@ -1,11 +1,12 @@
 from mgd.settings import EMAIL_HOST_USER
 from . import forms
+from django.db.models import Min
 from django.core.mail import send_mail
+from json import dumps
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView
-from django_filters.views import FilterView
 from .filters import CalendarFilter
 from .models import Activity, Continent, Country,\
     Region, Place, TourObject, Route, Tour, Refuge,\
@@ -26,10 +27,24 @@ def participate(request, pk):
 
 
 def index(request):
+    dict_values = Calendar.active.order_by('tour').values('tour__pk').annotate(Min('start_date'))[:4]
+    list_of_ids = []
+    for v in dict_values:
+        list_of_ids.append(Calendar.active.get(tour__pk__exact=v['tour__pk'], start_date__exact=v['start_date__min']).pk)
+    objects = Calendar.objects.filter(pk__in=list_of_ids)
     return render(
         request,
         'index.html',
-        context={},
+        context={
+            'object_list': objects,
+            'activity_list': Activity.active.all(),
+            'continent_list': Continent.active.all(),
+            'country_list': Country.active.all(),
+            'region_list': Region.active.all(),
+            'place_list': Place.active.all(),
+            'route_list': Route.active.all(),
+            'refuge_list': Refuge.active.all()
+        },
     )
 
 
@@ -81,17 +96,16 @@ class FilteredListView(ListView):
         return context
 
 
-#  class TourFilterListView(FilterView):
 class TourFilterListView(FilteredListView):
     model = Calendar
-    paginate_by = 5
+    paginate_by = 6
     context_object_name = 'tour_list'
     template_name = 'tour_list.html'
     filterset_class = CalendarFilter
 
 
 class GlobalListView(ListView):
-    paginate_by = 5
+    paginate_by = 12
     context_object_name = 'objects'
     template_name = 'global_list.html'
 
@@ -183,9 +197,7 @@ class ArgumentListView(ListView):
                     )
                 )
             if self.kwargs['arg1'] == 'continent':
-                regions = Region.active.filter(
-                    region=Continent.active.get(continent__slug__exact=self.kwargs['arg2']).country.region
-                )
+                return Country.active.filter(continent__slug__exact=self.kwargs['arg2'])
             if self.kwargs['arg1'] == 'guide':
                 regions = Region.active.filter(
                     place__in=Place.active.filter(
@@ -255,6 +267,10 @@ class ArgumentListView(ListView):
                 guide_tours = Tour.active.filter(guide__slug=self.kwargs['arg2'])
                 tour_events = TourEvent.objects.filter(tour__in=guide_tours)
                 objects = TourObject.active.filter(tourevent__in=tour_events).distinct()
+            if self.kwargs['arg1'] == 'activity':
+                objects = TourObject.active.filter(
+                    route__in=Route.active.filter(activity__slug__exact=self.kwargs['arg2'])
+                ).distinct()
             if self.kwargs['arg1'] == 'refuge':
                 objects = TourObject.active.filter(
                     route__in=Route.active.filter(refuge__slug__exact=self.kwargs['arg2'])
@@ -300,6 +316,8 @@ class ArgumentListView(ListView):
                 objects = Route.active.filter(tourevent__in=tour_events).distinct()
             if self.kwargs['arg1'] == 'refuge':
                 objects = Route.active.filter(refuge__slug__exact=self.kwargs['arg2']).distinct()
+            if self.kwargs['arg1'] == 'activity':
+                objects = Route.active.filter(activity__slug__exact=self.kwargs['arg2']).distinct()
         if self.kwargs['arg3'] == 'tours':
             if self.kwargs['arg1'] == 'activity':
                 objects = Tour.active.filter(
@@ -428,66 +446,106 @@ class ArgumentListView(ListView):
 
 class ActivityDetailView(DetailView):
     model = Activity
-    template_name = 'activity_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:activity-detail', kwargs={'slug': self.kwargs['slug']})
 
+    def get_context_data(self, **kwargs):
+        context = super(ActivityDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'activity'
+        return context
+
 
 class ContinentDetailView(DetailView):
     model = Continent
-    template_name = 'continent_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:continent-detail', kwargs={'slug': self.kwargs['slug']})
 
+    def get_context_data(self, **kwargs):
+        context = super(ContinentDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'continent'
+        return context
+
 
 class CountryDetailView(DetailView):
     model = Country
-    template_name = 'country_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:country-detail', kwargs={'slug': self.kwargs['slug']})
 
+    def get_context_data(self, **kwargs):
+        context = super(CountryDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'country'
+        return context
+
 
 class RegionDetailView(DetailView):
     model = Region
-    template_name = 'region_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:region-detail', kwargs={'slug': self.kwargs['slug']})
 
-
-class TourObjectDetailView(DetailView):
-    model = TourObject
-    template_name = 'tour_object_detail.html'
-
-    def get_success_url(self):
-        return reverse('tour:tour-object-detail', kwargs={'slug': self.kwargs['slug']})
-
-
-class RouteDetailView(DetailView):
-    model = Route
-    template_name = 'route_detail.html'
-
-    def get_success_url(self):
-        return reverse('tour:route-detail', kwargs={'slug': self.kwargs['slug']})
+    def get_context_data(self, **kwargs):
+        context = super(RegionDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'region'
+        return context
 
 
 class PlaceDetailView(DetailView):
     model = Place
-    template_name = 'place_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:place-detail', kwargs={'slug': self.kwargs['slug']})
 
+    def get_context_data(self, **kwargs):
+        context = super(PlaceDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'place'
+        return context
+
+
+class TourObjectDetailView(DetailView):
+    model = TourObject
+    template_name = 'global_detail.html'
+
+    def get_success_url(self):
+        return reverse('tour:tour-object-detail', kwargs={'slug': self.kwargs['slug']})
+
+    def get_context_data(self, **kwargs):
+        context = super(TourObjectDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'tour-object'
+        return context
+
+
+class RouteDetailView(DetailView):
+    model = Route
+    template_name = 'global_detail.html'
+
+    def get_success_url(self):
+        return reverse('tour:route-detail', kwargs={'slug': self.kwargs['slug']})
+
+    def get_context_data(self, **kwargs):
+        context = super(RouteDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'route'
+        return context
+
 
 class RefugeDetailView(DetailView):
     model = Refuge
-    template_name = 'refuge_detail.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:refuge-detail', kwargs={'slug': self.kwargs['slug']})
+
+    def get_context_data(self, **kwargs):
+        context = super(RefugeDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'refuge'
+        return context
 
 
 class TourDetailView(DetailView):
@@ -497,10 +555,25 @@ class TourDetailView(DetailView):
     def get_success_url(self):
         return reverse('tour:tour-detail', kwargs={'slug': self.kwargs['slug']})
 
+    def get_context_data(self, **kwargs):
+        context = super(TourDetailView, self).get_context_data(**kwargs)
+        obj = context['object']
+        alti_data = obj.get_alti_data_plot()
+        days_data = obj.get_days_data_plot()
+        dataDictionary = {'altitude': alti_data, 'days': days_data}
+        dataJSON = dumps(dataDictionary)
+        context['data'] = dataJSON
+        return context
+
 
 class GuideProfileDetailView(DetailView):
     model = GuideProfile
-    template_name = 'guide_profile.html'
+    template_name = 'global_detail.html'
 
     def get_success_url(self):
         return reverse('tour:guide-detail', kwargs={'slug': self.kwargs['slug']})
+
+    def get_context_data(self, **kwargs):
+        context = super(GuideProfileDetailView, self).get_context_data(**kwargs)
+        context['type'] = 'guide'
+        return context

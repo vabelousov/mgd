@@ -1,35 +1,38 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
+{% load mgd_tags %}
+{% load mgd_filters %}
 {% block content %}
-<div class="global-list">
-    <div class="page-title">[-{{ list_title }}-]</div>
-    <div class="global-list-header">Name</div>
-    {% for obj in objects %}
-        <div class="global-list-item">
-            {% if list_title == 'routes' %}
-                [<a href="{{ obj.tour_object.get_absolute_url }}">{{ obj.tour_object }}</a>]-
-            {% endif %}
-            [<a href="{{ obj.get_absolute_url }}">{{ obj }}</a>]
+<div class="universal-body">
+    <div class="universal-list">
+        {% for obj in objects %}
+        <div class="universal-list-item">
+            <div class="universal-list-item-type">
+                <img src="/static/img/type.svg" alt="type" width="16px" height="16px">
+                {{ list_title }}
+            </div>
+            <div class="universal-list-item-name">
+                {% if list_title == 'routes' %}
+                <a href="{{ obj.tour_object.get_absolute_url }}"><h3>{{ obj.tour_object }}</h3></a>
+                {% endif %}
+                <a href="{{ obj.get_absolute_url }}"><h3>{{ obj }}</h3></a>
+            </div>
+            <div class="universal-list-item-more"><a href="{{ obj.get_absolute_url }}">смотреть...</a></div>
         </div>
-    {% empty %}
-        <div class="global-list-item">[-{% translate "no entry" %}-]</div>
-    {% endfor %}
-    <div class="pagination">
-        <span class="step-links">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
+        {% endfor %}
     </div>
+    {% if is_paginated %}
+    <div class="center">
+        <div class="pagination">
+            {% for p_num in paginator.num_pages|add:1|times %}
+                {% if p_num == page_obj.number %}
+                    <a class="active" href="?{% param_replace page=p_num %}">{{ p_num }}</a>
+                {% else %}
+                    <a href="?{% param_replace page=p_num %}">{{ p_num }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

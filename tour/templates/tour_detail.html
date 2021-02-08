@@ -1,135 +1,299 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
+{% load static %}
+{% load mgd_filters %}
 {% block content %}
-<div class="detail-body">
-    <div class="detail-title">{{ object.name }}</div>
-    <div class="detail-item">
-        {% for act in object.get_activities %}[<a href="{{ act.get_absolute_url }}">{{ act }}</a>]{% endfor %}
-    </div>
-    {% if object.tourevent_set %}
-    <div class="detail-item">
-        {% for te in object.tourevent_set.all %}
-        {% if forloop.first %}{% translate "Events (e.g. - climbs)" %}:{% endif %}
-        <div class="detail-item-list">
-            {% if te.event_type == 'acclimatization' %}Acclimatization{% endif %}
-            <a href="{{ te.tour_object.get_absolute_url }}">[{{ te.tour_object }} ({{ te.tour_object.altitude }}m)]</a> - <a href="{{ te.route.get_absolute_url }}">[{{ te.route }}]</a>
+<div class="tour">
+    <div class="header">
+        <div class="header-title"><h1>{{ object.name }}</h1></div>
+        <div class="header-table"></div>
+        <div class="header-item pos-activity">
+            <img src="/static/img/activity.svg" alt="" width="16px" height="16px">
+            {% for act in object.get_activities %}<a href="{{ act.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ act }}</a>{% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    <div class="detail-item">
-        {% for rfg in object.get_refuges %}[<a href="{{ rfg.get_absolute_url }}">{{ rfg }}</a>]{% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for plc in object.get_places %}[<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>]{% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for rg in object.get_regions %}[<a href="/region/{{ rg.slug }}/">{{ rg }}</a>]{% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for ctr in object.get_countries %}[<a href="/country/{{ ctr.slug }}/">{{ ctr }}</a>]{% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for cnt in object.get_continents %}[<a href="/continent/{{ cnt.slug }}/">{{ cnt }}</a>]{% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for gd in object.guide.all %}[<a href="{{ gd.get_absolute_url }}">{{ gd }}</a>]{% endfor %}
+        <div class="header-item pos-place">
+            <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+            {% for ctr in object.get_countries %}
+                <a href="{{ ctr.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ ctr }}</a>
+            {% endfor %}
+        </div>
+        {% if object.guide.all %}
+        <div class="header-item pos-guide"><img src="/static/img/guide.svg" alt="guide" width="16px" height="16px">
+            {% for gd in object.guide.all %}
+            <a href="{{ gd.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ gd }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% comment %}
+        <div class="header-item pos-place">
+            <img src="/static/img/region.svg" alt="region" width="16px" height="16px">
+            {% for cnt in object.get_continents %}<a href="{{ cnt.get_absolute_url }}">{{ cnt }}</a>,{% endfor %}
+            {% for ctr in object.get_countries %}<a href="{{ ctr.get_absolute_url }}">{{ ctr }}</a>,{% endfor %}
+            {% for rg in object.get_regions %}<a href="{{ rg.get_absolute_url }}">{{ rg }}</a>,{% endfor %}
+            {% for plc in object.get_places %}<a href="{{ plc.get_absolute_url }}">{{ plc }}</a>{% endfor %}
+        </div>
+        <div class="header-item pos-mountain">
+            <img src="/static/img/mountain.svg" alt="mountain" width="16px" height="16px">
+            {% for tobj in object.get_main_tour_objects %}
+            <a href="{{ tobj.get_absolute_url }}">{{ tobj }} ({{ tobj.altitude }} м)</a>
+            {% with rt=object|get_tour_object_route_filter:tobj %} - <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% endwith %}
+            {% endfor %}
+        </div>
+        <div class="header-item pos-acclimatization"><img src="/static/img/acclimatization.svg" alt="acclimatization" width="16px" height="16px">
+            {% for tobj in object.get_secondary_tour_objects %}
+                <a href="{{ tobj.get_absolute_url }}">{{ tobj }} ({{ tobj.altitude }} м)</a>
+                {% with rt=object|get_tour_object_route_filter:tobj %} - <a href="{{ rt.get_absolute_url }}">{{ rt }}</a>{% endwith %}
+            {% endfor %}
+        </div>
+        {% endcomment %}
+        <div class="header-item pos-difficulty">
+            <img src="/static/img/difficulty.svg" alt="difficulty" width="16px" height="16px"> {{ object.get_difficulty_level }}
+        </div>
+        <div class="header-item pos-fitness">
+            <img src="/static/img/fitness.svg" alt="fitness" width="16px" height="16px"> {{ object.get_physical_level }}
+        </div>
+        {% if object.season %}
+        <div class="header-item pos-season">
+            <img src="/static/img/season.svg" alt="season" width="16px" height="16px"> {{ object.season }}
+        </div>
+        {% endif %}
+        <div class="header-item pos-group">
+            <img src="/static/img/group.svg" alt="group" width="16px" height="16px"> максимум {{ object.get_guide_client_ratio }}
+        </div>
+        <div class="header-item pos-days">
+            <img src="/static/img/days.svg" alt="days" width="16px" height="16px"> {{ object.get_days_count }} дней
+        </div>
+        {% if object.show_price %}
+        <div class="header-item pos-cost">
+            <img src="/static/img/cost.svg" alt="cost" width="16px" height="16px">
+            от {{ object.price }}
+            <img src="/static/img/{{ object.currency.code|lower }}.svg" alt="{{ object.currency.code }}" width="16px" height="16px">
+        </div>
+        {% endif %}
     </div>
     {% if object.description %}
-    <div class="detail-item">{% translate "Tour description" %}: {{ object.description }}
-    </div>
-    {% endif %}
-    {% if object.day_set %}
-    <div class="detail-item">
-        {% for day in object.day_set.all %}
-        {% if forloop.first %}{% translate "Program by days" %}:{% endif %}
-        <div class="detail-item-list">[{{ day }}]</div>
-        <div class="detail-item-list-body">[{{ day.interary }}]</div>
-        <div class="detail-item-list-metrics">
-            {% if day.ascent > 0 %}набор: [{{ day.ascent }}] m{% endif %}
-            {% if day.ascent_time > 0%}, время на набор: [{{ day.ascent_time_minutes }}]{% endif %}
-            {% if day.descent > 0 %}, сброс: [{{ day.descent }}] m{% endif %}
-            {% if day.descent_time > 0%}, время на сброс: [{{ day.descent_time_minutes }}]{% endif %}
+    <div class="textblock">
+        <div class="name">Описание</div>
+        <div class="body">
+            {{ object.description }}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
-    {% if object.danger %}
-    <div class="detail-item">{{ object.danger }}:  {{ object.danger.description }}</div>
-    {% endif %}
-    {% if object.typical_weather %}
-    <div class="detail-item">{% translate "Weather" %}: {{ object.typical_weather }}</div>
-    {% endif %}
-    {% if object.insurance %}
-    <div class="detail-item">{{ object.insurance.name }}: {{ object.insurance.description }}</div>
-    {% endif %}
-    {% if object.safety %}
-    <div class="detail-item">{{ object.safety.name }}: {{ object.safety.description }}</div>
-    {% endif %}
-    {% if object.accomodation %}
-    <div class="detail-item">{% translate "Accomodation" %}: {{ object.accomodation }}</div>
-    {% endif %}
-    {% if object.food %}
-    <div class="detail-item">{% translate "Food" %}: {{ object.food }}</div>
-    {% endif %}
-    {% if object.add_info %}
-    <div class="detail-item">{% translate "Additional info" %}: {{ object.add_info }}</div>
-    {% endif %}
-    <div class="detail-item">
-        {% for eq in object.get_equipment_list %}
-        {% if forloop.first %}{% translate "Equipment" %}:{% endif %}
-        <div class="detail-item-list">[{{ eq }}]</div>
-        {% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for doc in object.travel_documents.all %}
-        {% if forloop.first %}{% translate "Travel Documents" %}:{% endif %}
-        <div class="detail-item-list">[{{ doc }}]</div>
-        {% endfor %}
-    </div>
-    {% if object.get_physical_level %}
-    <div class="detail-item">{% translate "Physical Level" %}:  {{ object.get_physical_level }}</div>
-    {% endif %}
-    {% if object.get_difficulty_level %}
-    <div class="detail-item">{% translate "Difficulty Level" %}:  {{ object.get_difficulty_level }}</div>
-    {% endif %}
-    {% if object.get_guide_client_ratio %}
-    <div class="detail-item">{% translate "Guide-Client ratio" %}: {{ object.get_guide_client_ratio }}</div>
-    {% endif %}
-    <div class="detail-item">
-        {% for event_dates in object.calendar_set.all %}
-        {% if forloop.first %}{% translate "Dates & Availability" %}:{% endif %}
-        <div class="detail-item-list">
-            [
-            {% if event_dates.start_date and event_dates.end_date %}{{ event_dates.start_date }} - {{ event_dates.end_date }}
-            {% else %}{{ event_dates.note }}
+    <div class="tabs">
+        {% if object.tourevent_set.all %}
+        <input type="radio" id="tab-1-1" name="tab-group-1" checked>
+        <label for="tab-1-1"><img src="/static/img/route.svg" alt="plan" width="16px" height="16px"> О маршруте</label>
+        <div>
+            <div class="textblock">
+                <div class="name">Место проведения</div>
+                <div class="body">
+                    {% for plc in object.get_places.all %}
+                        <div class="body-list">
+                            <a href="{{ plc.get_absolute_url }}">{{ plc }}</a>,
+                            <a href="{{ plc.region.get_absolute_url }}">{{ plc.region }}</a>,
+                            <a href="{{ plc.region.country.get_absolute_url }}">{{ plc.region.country }}</a>,
+                            <a href="{{ plc.region.country.continent.get_absolute_url }}">{{ plc.region.country.continent }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="textblock">
+                <div class="body">
+                    {% for evt in object.tourevent_set.all %}
+                    <div class="day">
+                        <div class="day-name">
+                            {% for plc in evt.route.place.all %}
+                                <a href="{{ plc.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ plc }} ({{ plc.altitude }} m)</a>
+                                {% for rfg in evt.route.refuge.all %} - <a href="{{ rfg.get_absolute_url }}">{% if not forloop.first %}, {% endif %}{{ rfg }} ({{ rfg.altitude }} m)</a>{% endfor %}
+                            {% endfor %}
+                        </div>
+                        <div class="day-body">
+                            <img src="/static/img/mountain.svg" alt="mountain" width="16px" height="16px">
+                            <a href="{{ evt.tour_object.get_absolute_url }}">{{ evt.tour_object }} ({{ evt.tour_object.altitude }} m)</a>
+                            <u>{{ evt.event_type }}</u>
+                            <img src="/static/img/route.svg" alt="route" width="16px" height="16px">
+                            <a href="{{ evt.route.get_absolute_url }}">{{ evt.route }}</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if object.day_set.all %}
+        <input type="radio" id="tab-1-2" name="tab-group-1" checked>
+        <label for="tab-1-2"><img src="/static/img/day-plan.svg" alt="plan" width="16px" height="16px"> План по дням</label>
+        <div>
+            <div class="textblock">
+                <div class="body">
+                    {% for day in object.day_set.all %}
+                    <div class="day">
+                        <div class="day-name">{{ day }}</div>
+                        <div class="day-body">
+                            {{ day.interary }}
+                        </div>
+                        <div class="day-body-metrics">
+                            {% if day.morning_altitude > 0 %}утренняя высота: {{ day.morning_altitude }} m{% endif %}
+                        </div>
+                        <div class="day-body-metrics">
+                            {% if day.day_altitude > 0 %}дневная высота: {{ day.day_altitude }} m{% endif %}
+                        </div>
+                        <div class="day-body-metrics">
+                            {% if day.night_altitude > 0 %}вечерняя высота: {{ day.night_altitude }} m{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="days-container">
+                        <div id="placeholder" class="days-placeholder"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <input type="radio" id="tab-1-3" name="tab-group-1">
+        <label for="tab-1-3"><img src="/static/img/info.svg" alt="info" width="16px" height="16px"> Полезное</label>
+        <div>
+            {% if object.add_info %}
+                <div class="textblock">
+                    <div class="name">Информация</div>
+                    <div class="body">{{ object.add_info }}</div>
+                </div>
             {% endif %}
-            (av. {{ event_dates.get_availability }})]
-            {% if event_dates.get_availability > 0 and object.allow_booking %}
-                <a href="/participate/{{ event_dates.pk }}/">{% translate "Book" %}</a>
+            {% if object.safety %}
+                <div class="textblock">
+                    <div class="name">Безопасность</div>
+                    <div class="body">{{ object.safety }}</div>
+                </div>
+            {% endif %}
+            {% if object.danger %}
+                <div class="textblock">
+                    <div class="name">Опасности</div>
+                    <div class="body">{{ object.danger }}</div>
+                </div>
+            {% endif %}
+            {% if object.typical_weather %}
+                <div class="textblock">
+                    <div class="name">Погода</div>
+                    <div class="body">{{ object.typical_weather }}</div>
+                </div>
+            {% endif %}
+            {% if object.insurance %}
+                <div class="textblock">
+                    <div class="name">Страховка</div>
+                    <div class="body">{{ object.insurance }}</div>
+                </div>
+            {% endif%}
+            {% if object.accomodation %}
+                <div class="textblock">
+                    <div class="name">Размещение</div>
+                    <div class="body">{{ object.accomodation }}</div>
+                </div>
+            {% endif %}
+            {% if object.food %}
+                <div class="textblock">
+                    <div class="name">Питание</div>
+                    <div class="body">{{ object.food }}</div>
+                </div>
+            {% endif %}
+            {% if object.rental %}
+                <div class="textblock">
+                    <div class="name">Прокат личного снаряжения</div>
+                    <div class="body">{{ object.rental }}</div>
+                </div>
+            {% endif %}
+            {% if object.transport %}
+                <div class="textblock">
+                    <div class="name">Транспорт</div>
+                    <div class="body">{{ object.transport }}</div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <input type="radio" id="tab-1-4" name="tab-group-1">
+        <label for="tab-1-4"><img src="/static/img/equipment.svg" alt="equipment" width="16px" height="16px"> Снаряжение и документы</label>
+        <div>
+            <div class="textblock">
+                <div class="name">Снаряжение</div>
+                <div class="body">
+                    {% for eq in object.get_equipment_list %}
+                    {% ifchanged eq.equipment_type %} <div class="body-list-header">{{ eq.equipment_type }}</div>{% endifchanged %}
+                    <div class="body-list">{{ eq }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if object.travel_documents %}
+                <div class="textblock">
+                    <div class="name">Документы</div>
+                    <div class="body">
+                        {% for doc in object.travel_documents.all %}
+                            <div class="body-list">{{ doc }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             {% endif %}
         </div>
-        {% endfor %}
+        {% if object.get_refuges %}
+        <input type="radio" id="tab-1-5" name="tab-group-1">
+        <label for="tab-1-5"><img src="/static/img/refuge.svg" alt="refuges" width="16px" height="16px"> Приюты и хижины</label>
+        <div>
+            <div class="textblock">
+                <div class="name">Горные хижины в программе:</div>
+                <div class="body">
+                    {% for rfg in object.get_refuges %}
+                        <div class="body-list">
+                            <img src="/static/img/refuge.svg" alt="refuge" width="16px" height="16px">
+                            <a href="{{ rfg.get_absolute_url }}">{{ rfg }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <input type="radio" id="tab-1-6" name="tab-group-1">
+        <label for="tab-1-6"><img src="/static/img/dates.svg" alt="dates" width="16px" height="16px"> Цены и даты</label>
+        <div>
+            <div class="textblock">
+                <div class="name">Стоимость</div>
+                <div class="body">
+                    {% for prc in object.pricevalue_set.all %}
+                        <div class="body-list">
+                            {{ prc.group }} гость - {{ prc.price }}
+                            <img src="/static/img/{{ object.currency.code|lower }}.svg" alt="{{object.currency}}" width="16px" height="16px">
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="textblock">
+                <div class="name">Рассписание</div>
+                <div class="body">
+                    {% for event_dates in object.calendar_set.all %}
+                    <div class="body-list">
+                        {% if event_dates.start_date and event_dates.end_date %}{{ event_dates.start_date }} - {{ event_dates.end_date }}
+                        {% else %}{{ event_dates.note }}
+                        {% endif %},
+                        мест осталось {{ event_dates.get_availability }}.
+                        {% if event_dates.get_availability > 0 and object.allow_booking %}
+                            <span class="book-button">Бронировать</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if object.priceoption_set.all %}
+            <div class="textblock">
+                <div class="name">Услуги</div>
+                <div class="body">
+                    {% for popt in object.priceoption_set.all %}
+                        {% ifchanged popt.list_type %}<div class="body-list-header">{{ popt.list_type }}</div>{% endifchanged %}
+                        <div class="body-list">{{ popt }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% if object.show_price %}
-    {% if object.price %}
-    <div class="detail-item">{% translate "Price" %}: {{ object.price }}{% if object.currency %}{{ object.currency }}{% endif %}</div>
-    {% endif %}
-    {% if object.priceoption_set %}
-    <div class="detail-item">
-        {% for incl in object.priceoption_set.all %}
-        {% if forloop.first %}{% translate "Includes" %}:{% endif %}
-        {% if incl.list_type == 'includes' %}<div class="detail-item-list">[{{ incl }}]</div>{% endif %}
-        {% endfor %}
-    </div>
-    <div class="detail-item">
-        {% for excl in object.priceoption_set.all %}
-        {% if forloop.first %}{% translate "Excludes" %}:{% endif %}
-        {% if excl.list_type == 'excludes' %}<div class="detail-item-list">[{{ excl }}]</div>{% endif %}
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endif %}
-    <div class="detail-item">{% translate "Created" %}: {{ object.date_created }}</div>
+    <div class="date-created">{% translate "Created" %}: {{ object.date_created }}</div>
 </div>
 {% endblock %}

@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import Tour, Activity, Continent, Country, Region, TourEvent,\
     Place, TourObject, Route, GuideProfile, DifficultyLevel, PhysicalLevel, Refuge, Calendar
 import django.forms
+from django import forms
 from django.db.models import Q
 import django_filters
 
@@ -101,6 +102,12 @@ class CalendarFilter(django_filters.FilterSet):
             attrs={'type': 'date'}
         )
     )
+    # no_dates = django_filters.BooleanFilter(
+    #     field_name='start_date',
+    #     lookup_expr='isnull',
+    #     widget=forms.CheckboxInput
+    # )
+
     search = django_filters.CharFilter(method='calendar_search_filter', label=_('Search'))
     tour__tourevent__tour_object = django_filters.ModelMultipleChoiceFilter(
         queryset=TourObject.active.filter(tourevent__in=TourEvent.objects.filter(tour__in=Tour.active.all())).distinct(),
